@@ -1,0 +1,3 @@
+[submodule "language-analyzer"]
+	path = language-analyzer
+	url = https://github.com/ogendogen/language-analyzer
