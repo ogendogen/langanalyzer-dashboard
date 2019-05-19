@@ -55,7 +55,18 @@ app.layout = html.Div(children=[
 def update_figure(selectedFile):
     fileContent = utils.readAllText("analysis/" + selectedFile)
     jsonObject = json.loads(fileContent)
-    print(jsonObject)
+    
+    lettersJson = jsonObject["letters"]
+    bigramsJson = jsonObject["bigrams"]
+    trigramsJson = jsonObject["trigrams"]
+    
+    dfLetters = pd.DataFrame(eval(lettersJson), index=[0])
+    dfBigrams = pd.DataFrame(eval(bigramsJson), index=[0])
+    dfTrigrams = pd.DataFrame(eval(trigramsJson), index=[0])
+
+    print(dfLetters)
+    print(dfBigrams)
+    print(dfTrigrams)
 
 if __name__ == "__main__":
     app.run_server(debug=True)
