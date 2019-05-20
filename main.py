@@ -12,6 +12,7 @@ import pandas as pd
 
 import utils
 
+
 # Przykładowy df dla tabeli
 df = pd.read_csv(
     'https://gist.githubusercontent.com/chriddyp/'
@@ -26,7 +27,7 @@ df2 = pd.read_csv(
     'gdp-life-exp-2007.csv')
 
 def show(df):
-    app.layout = html.Div(children=[
+    html.Div(children=[
         html.H4(children='Litery'),
         generate_table(df)
     ])
@@ -67,6 +68,7 @@ app.layout = html.Div(children=[
             }
         }
     ),
+
 
 
     dcc.Graph(
@@ -112,14 +114,37 @@ app.layout = html.Div(children=[
            href='https://google.com'),
 
     # button nic nie robi, trzeba dodać kolejne @app.callback - tylko, że się sypie
-    html.Div([html.Button('Wyświetl tabelę', id='button'),
+    html.Div([html.Button('Wyświetl tabelę', id='button2'),
 
               html.Div(children=[
                   html.Div(children='Występowanie liter'),
                   # Jakby tu dostać się do dfLetters i reszty to by było fajnie
                   generate_table(df)
               ])
-              ])
+              ]),
+
+#no dobra.. ale gdzie tu się określa typ wykresu? xD
+    html.Div(
+        dcc.Graph(
+            id='mapbox',
+            figure={
+                'data': [go.Bar(
+                    x=df['dairy'],
+                )
+                ],
+                'layout': go.Layout(
+                    legend={'x': 0},
+                    hovermode='closest'
+                )
+            }
+        )
+    ),
+
+    html.Div([
+    html.Div(dcc.Input(id='input-box', type='text')),
+    html.Button('Submit', id='button'),
+    html.Div(id='output-container-button')
+])
 
 ])
 
@@ -138,13 +163,20 @@ def update_figure(selectedFile):
     dfLetters = pd.DataFrame(eval(lettersJson), index=[0])
     dfBigrams = pd.DataFrame(eval(bigramsJson), index=[0])
     dfTrigrams = pd.DataFrame(eval(trigramsJson), index=[0])
-
     # dcc.Link("Litery", show(dfLetters))
 
     print(dfLetters)
     print(dfBigrams)
     print(dfTrigrams)
 
+@app.callback(
+    dash.dependencies.Output('output-container-button', 'children'),
+    [dash.dependencies.Input('button', 'n_clicks')],
+    [dash.dependencies.State('input-box', 'value')])
+def update_output(n_clicks, value):
+    show(df)
+
+#NIE DZIAŁA, NIC NIE DZIAŁA, ZABIJCIE MNIE, ALBO TEGO KTO WYMYŚLIŁ TO USTROJSTWO!
 
 if __name__ == "__main__":
     app.run_server(debug=True)
