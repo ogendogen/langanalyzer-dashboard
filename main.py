@@ -12,13 +12,18 @@ import pandas as pd
 
 import utils
 
-#Przykładowy df do testów
+# Przykładowy df dla tabeli
 df = pd.read_csv(
     'https://gist.githubusercontent.com/chriddyp/'
     'c78bf172206ce24f77d6363a2d754b59/raw/'
     'c353e8ef842413cae56ae3920b8fd78468aa4cb2/'
     'usa-agricultural-exports-2011.csv')
-
+# Przykładowy df dla grafu
+df2 = pd.read_csv(
+    'https://gist.githubusercontent.com/chriddyp/' +
+    '5d1ea79569ed194d432e56108a04d188/raw/' +
+    'a9f9e8076b837d541398e999dcbac2b2826a81f8/'+
+    'gdp-life-exp-2007.csv')
 
 def show(df):
     app.layout = html.Div(children=[
@@ -44,10 +49,10 @@ external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div(children=[
-    html.H1(children="Hello Dash"),
+    html.H1(children="Analiza występowania znaków w różnych językach"),
 
     html.Div(children="""
-        Dash: A web application framework for Python.
+        Projekt wykonany we frameworku Dash
     """),
 
     dcc.Graph(
@@ -60,6 +65,34 @@ app.layout = html.Div(children=[
             "layout": {
                 "title": "Dash Data Visualization"
             }
+        }
+    ),
+
+
+    dcc.Graph(
+        id='life-exp-vs-gdp',
+        figure={
+            'data': [
+                go.Scatter(
+                    x=df2[df2['continent'] == i]['gdp per capita'],
+                    y=df2[df2['continent'] == i]['life expectancy'],
+                    text=df2[df2['continent'] == i]['country'],
+                    mode='markers',
+                    opacity=0.7,
+                    marker={
+                        'size': 15,
+                        'line': {'width': 0.5, 'color': 'white'}
+                    },
+                    name=i
+                ) for i in df2.continent.unique()
+            ],
+            'layout': go.Layout(
+                xaxis={'type': 'log', 'title': 'GDP Per Capita'},
+                yaxis={'title': 'Life Expectancy'},
+                margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
+                legend={'x': 0, 'y': 1},
+                hovermode='closest'
+            )
         }
     ),
 
@@ -78,6 +111,7 @@ app.layout = html.Div(children=[
     html.A(html.Button('Przykładowy button'),
            href='https://google.com'),
 
+    # button nic nie robi, trzeba dodać kolejne @app.callback - tylko, że się sypie
     html.Div([html.Button('Wyświetl tabelę', id='button'),
 
               html.Div(children=[
