@@ -73,12 +73,6 @@ def update_figure(selectedFile):
     jsonObject = json.loads(fileContent)
 
     lettersJson = eval(jsonObject["letters"])
-    bigramsJson = eval(jsonObject["bigrams"])
-    trigramsJson = eval(jsonObject["trigrams"])
-
-    #print(dfLetters)
-    #print(dfBigrams)
-    #print(dfTrigrams)
 
     #print(eval(lettersJson))
     literals = list(lettersJson.keys())
@@ -118,7 +112,6 @@ def update_figure(selectedFile):
     jsonObject = json.loads(fileContent)
 
     bigramsJson = eval(jsonObject["bigrams"])
-    trigramsJson = eval(jsonObject["trigrams"])
 
     literals = list(bigramsJson.keys())
     freq = list(bigramsJson.values())
