@@ -21,7 +21,11 @@ app.layout = html.Div(children=[
         id="input-dropdown",
         options=[
             {"label": "English", "value": "english.json"},
+            {"label": "English 2", "value": "english2.json"},
+            {"label": "Finnish", "value": "finnish.json"},
             {"label": "Norwegian", "value": "norwegian.json"},
+            {"label": "Norwegian 2", "value": "norwegian2.json"},
+            {"label": "Polish", "value": "polish.json"},
             {"label": "Russian", "value": "russian.json"},
             {"label": "Spanish", "value": "spanish.json"}
         ],
@@ -35,7 +39,7 @@ app.layout = html.Div(children=[
                 {"x": [1, 2, 3], "y": [4, 1, 2], "type": "bar", "name": "SF"},
             ],
             "layout": {
-                "title": "Występowanie liter"
+                "title": "Występowanie liter",
             }
         }
     ),
@@ -111,7 +115,10 @@ def update_figure(selectedFile):
     fileContent = utils.readAllText("analysis/" + selectedFile)
     jsonObject = json.loads(fileContent)
 
-    bigramsJson = eval(jsonObject["bigrams"])
+    try:
+        bigramsJson = eval(jsonObject["bigrams"])
+    except TypeError:
+        bigramsJson = eval(jsonObject["digrams"])
 
     literals = list(bigramsJson.keys())
     freq = list(bigramsJson.values())
@@ -147,12 +154,12 @@ def update_figure(selectedFile):
         x=literals,
         y=freq,
         name="Występowanie triraów",
-        text="Dokładna wartośc wystąpień zaznaczonego triramu"
+        text="Dokładna wartośc wystąpień zaznaczonego triramu",
     ))
     return {
         "data": figure,
         'layout': go.Layout(
-            xaxis={'title': 'Trigram'},
+            xaxis={'title': 'Trigram', 'type': 'category'},
             yaxis={'title': 'Odsetek wystąpień'},  # 'range': [0, 0.2]
         )
     }

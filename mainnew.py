@@ -56,7 +56,11 @@ app.layout = html.Div(children=[
         id="input-dropdown",
         options=[
             {"label": "English", "value": "english.json"},
+            {"label": "English 2", "value": "english2.json"},
+            {"label": "Finnish", "value": "finnish.json"},
             {"label": "Norwegian", "value": "norwegian.json"},
+            {"label": "Norwegian 2", "value": "norwegian2.json"},
+            {"label": "Polish", "value": "polish.json"},
             {"label": "Russian", "value": "russian.json"},
             {"label": "Spanish", "value": "spanish.json"}
         ],
