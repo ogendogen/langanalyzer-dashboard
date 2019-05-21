@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -102,19 +104,18 @@ def update(value):
             }
         }
     else:
-        # print("Kolumny: "+str(list(update_figure(value)[0].columns)))
-        # print("Wartości:" + str(list(update_figure(value)[0].values)))
-        col = str(list(update_figure(value)[0].columns))
-        val = str(list(update_figure(value)[0].values))
-        print("Wartości poprawione:" + val[7:-2])
-        print("Kolumny:" + col)
+        figures = update_figure(value)[0]
+        columns = list(figures.columns)
+        values = list(figures.values[0])
+        print("Wartości poprawione:", values)
+        print("Kolumny:", columns)
 
         return {
             "data": [
-                {"x": col, "y": val[7:-2], "type": "bar", "name": "SciFi"},
+                {"x": columns, "y": values, "type": "bar", "name": "SciFi"},
             ],
             "layout": {
-                "title": "Zmieniony tytuł - wartości podane stringiem"
+                "title": "Zmieniony tytuł - wartości z pliku"
             }
         }
 
