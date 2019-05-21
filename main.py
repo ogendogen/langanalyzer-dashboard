@@ -11,15 +11,19 @@ external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
+tabs_styles = {
+    'height': '244px'
+}
+
 app.layout = html.Div(children=[
 
-    html.H1(children="Analiza występowania znaków w różnych językach"),
+    html.H1(children="Letters, bigrams and trigrams frequency analysis in different languages"),
     # html.Div(children="Projekt wykonany we frameworku Dash"),
     html.Div(" "),
 
     dcc.Tabs(id="maintabs", children=[
 # ------------------------------------MAIN TAB 1-----------------------------------------
-        dcc.Tab(label='Gotowe analizy', children=[
+        dcc.Tab(label='Show exemplary results', children=[
             html.Div([
                 html.Div(" "),
                 html.Label("Wybierz język do analizy"),
@@ -40,45 +44,36 @@ app.layout = html.Div(children=[
                 html.Div(" "),
                 dcc.Tabs(id="tabs", children=[
 # -------------------------------LETTERS TAB------------------------------------
-                    dcc.Tab(label='Litery', children=[
+                    dcc.Tab(label='Letters', children=[
                         html.Div([
                             dcc.Graph(
                                 id='letters-graph',
                                 figure={
                                     'data': [
-                                        {'x': [1, 2, 3], 'y': [4, 1, 2],
-                                         'type': 'bar', 'name': 'SF'},
-                                        {'x': [1, 2, 3], 'y': [2, 4, 5],
-                                         'type': 'bar', 'name': u'Montréal'},
+                                        {'x': [1], 'y': [2]},
                                     ]
                                 }
                             )
                         ])
                     ]),
 # -------------------------------BIGRAMS TAB------------------------------------
-                    dcc.Tab(label='Bigramy', children=[
+                    dcc.Tab(label='Bigrams', children=[
                         dcc.Graph(
                             id='bigrams-graph',
                             figure={
                                 'data': [
-                                    {'x': [1, 2, 3], 'y': [1, 4, 1],
-                                     'type': 'bar', 'name': 'SF'},
-                                    {'x': [1, 2, 3], 'y': [1, 2, 3],
-                                     'type': 'bar', 'name': u'Montréal'},
+                                    {'x': [1], 'y': [2]},
                                 ]
                             }
                         )
                     ]),
 # -------------------------------TRIGRAMS TAB------------------------------------
-                    dcc.Tab(label='Trigramy', children=[
+                    dcc.Tab(label='Trigrams', children=[
                         dcc.Graph(
                             id='trirams-graph',
                             figure={
                                 'data': [
-                                    {'x': [1, 2, 3], 'y': [2, 4, 3],
-                                     'type': 'bar', 'name': 'SF'},
-                                    {'x': [1, 2, 3], 'y': [5, 4, 3],
-                                     'type': 'bar', 'name': u'Montréal'},
+                                    {'x': [1], 'y': [2]},
                                 ]
                             }
                         )
@@ -87,15 +82,12 @@ app.layout = html.Div(children=[
             ])
         ]),
 # ------------------------------------MAIN TAB 2-----------------------------------------
-        dcc.Tab(label='Nowa analiza', children=[
+        dcc.Tab(label='Run a new analysis', children=[
             dcc.Graph(
                 id='example-graph-1',
                 figure={
                     'data': [
-                        {'x': [1, 2, 3], 'y': [1, 4, 1],
-                         'type': 'bar', 'name': 'TO'},
-                        {'x': [1, 2, 3], 'y': [1, 2, 3],
-                         'type': 'bar', 'name': u'DO'},
+                        {'x': [1], 'y': [2]},
                     ]
                 }
             )
@@ -132,18 +124,17 @@ def update_figure(selectedFile):
     figure.append(go.Scatter(
         x=literals,
         y=freq,
-        name="Występowanie liter",
-        text="Dokładna wartość wystąpień zaznaczonego znaku"
+        name="Letter frequency",
+        text="The exact value of occurrences of selected character"
     ))
 
     return {
         "data": figure,
         'layout': go.Layout(
-            xaxis={'title': 'Litera'},
-            yaxis={'title': 'Odsetek wystąpień'},  # 'range': [0, 0.2]
+            xaxis={'title': 'Letter'},
+            yaxis={'title': 'Proportions of occurrences'},  # 'range': [0, 0.2]
         )
     }
-
 
 # --------------------------BIGRAMS--------------------------
 @app.callback(
@@ -164,17 +155,16 @@ def update_figure(selectedFile):
     figure.append(go.Scatter(
         x=literals,
         y=freq,
-        name="Występowanie bigraów",
-        text="Dokładna wartość wystąpień zaznaczonego bigramu"
+        name="Bigrams frequency",
+        text="The exact value of occurrences of selected bigram"
     ))
     return {
         "data": figure,
         'layout': go.Layout(
             xaxis={'title': 'Bigram'},
-            yaxis={'title': 'Odsetek wystąpień'},  # 'range': [0, 0.2]
+            yaxis={'title': 'Proportions of occurrences'},  # 'range': [0, 0.2]
         )
     }
-
 
 # --------------------------TRIGRAMS--------------------------
 @app.callback(
@@ -192,14 +182,14 @@ def update_figure(selectedFile):
     figure.append(go.Scatter(
         x=literals,
         y=freq,
-        name="Występowanie triraów",
-        text="Dokładna wartość wystąpień zaznaczonego triramu",
+        name="Trigram frequency",
+        text="The exact value of occurrences of selected trigram",
     ))
     return {
         "data": figure,
         'layout': go.Layout(
             xaxis={'title': 'Trigram', 'type': 'category'},
-            yaxis={'title': 'Odsetek wystąpień'},  # 'range': [0, 0.2]
+            yaxis={'title': 'Proportions of occurrences'},  # 'range': [0, 0.2]
         )
     }
 
