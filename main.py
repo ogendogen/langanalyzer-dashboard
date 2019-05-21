@@ -107,7 +107,7 @@ def update_figure(selectedFile):
         x=literals,
         y=freq,
         name="Występowanie liter",
-        text="Dokładna wartośc wystąpień zaznaczonego znaku"
+        text="Dokładna wartość wystąpień zaznaczonego znaku"
     ))
 
     return {
@@ -139,7 +139,7 @@ def update_figure(selectedFile):
         x=literals,
         y=freq,
         name="Występowanie bigraów",
-        text="Dokładna wartośc wystąpień zaznaczonego bigramu"
+        text="Dokładna wartość wystąpień zaznaczonego bigramu"
     ))
     return {
         "data": figure,
@@ -167,7 +167,7 @@ def update_figure(selectedFile):
         x=literals,
         y=freq,
         name="Występowanie triraów",
-        text="Dokładna wartośc wystąpień zaznaczonego triramu",
+        text="Dokładna wartość wystąpień zaznaczonego triramu",
     ))
     return {
         "data": figure,
