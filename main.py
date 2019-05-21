@@ -4,7 +4,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 import plotly.graph_objs as go
 import json
-#import pandas as pd
+# import pandas as pd
 import utils
 
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
@@ -14,7 +14,7 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div(children=[
 
     html.H1(children="Analiza występowania znaków w różnych językach"),
-    #html.Div(children="Projekt wykonany we frameworku Dash"),
+    # html.Div(children="Projekt wykonany we frameworku Dash"),
 
     html.Label("Wybierz język do analizy"),
     dcc.Dropdown(
@@ -32,42 +32,53 @@ app.layout = html.Div(children=[
         value="english.json"
     ),
 
-    dcc.Graph(
-        id="letters-graph",
-        figure={
-            "data": [
-                {"x": [1, 2, 3], "y": [4, 1, 2], "type": "bar", "name": "SF"},
-            ],
-            "layout": {
-                "title": "Występowanie liter",
-            }
-        }
-    ),
+    dcc.Tabs(id="tabs", children=[
+        dcc.Tab(label='Litery', children=[
+            html.Div([
+                dcc.Graph(
+                    id='letters-graph',
+                    figure={
+                        'data': [
+                            {'x': [1, 2, 3], 'y': [4, 1, 2],
+                             'type': 'bar', 'name': 'SF'},
+                            {'x': [1, 2, 3], 'y': [2, 4, 5],
+                             'type': 'bar', 'name': u'Montréal'},
+                        ]
+                    }
+                )
+            ])
+        ]),
+        dcc.Tab(label='Bigramy', children=[
+            dcc.Graph(
+                id='bigrams-graph',
+                figure={
+                    'data': [
+                        {'x': [1, 2, 3], 'y': [1, 4, 1],
+                         'type': 'bar', 'name': 'SF'},
+                        {'x': [1, 2, 3], 'y': [1, 2, 3],
+                         'type': 'bar', 'name': u'Montréal'},
+                    ]
+                }
+            )
+        ]),
+        dcc.Tab(label='Trigramy', children=[
+            dcc.Graph(
+                id='trirams-graph',
+                figure={
+                    'data': [
+                        {'x': [1, 2, 3], 'y': [2, 4, 3],
+                         'type': 'bar', 'name': 'SF'},
+                        {'x': [1, 2, 3], 'y': [5, 4, 3],
+                         'type': 'bar', 'name': u'Montréal'},
+                    ]
+                }
+            )
+        ]),
+    ])
 
-    dcc.Graph(
-        id="bigrams-graph",
-        figure={
-            "data": [
-                {"x": [1, 2, 3], "y": [4, 1, 2], "type": "bar", "name": "SF"},
-            ],
-            "layout": {
-                "title": "Występowanie bigramów"
-            }
-        }
-    ),
-
-    dcc.Graph(
-        id="trirams-graph",
-        figure={
-            "data": [
-                {"x": [1, 2, 3], "y": [4, 1, 2], "type": "bar", "name": "SF"},
-            ],
-            "layout": {
-                "title": "Występowanie trigramów"
-            }
-        }
-    )
 ])
+
+
 # --------------------------LETTERS--------------------------
 @app.callback(
     Output("letters-graph", "figure"),
@@ -78,34 +89,35 @@ def update_figure(selectedFile):
 
     lettersJson = eval(jsonObject["letters"])
 
-    #print(eval(lettersJson))
+    # print(eval(lettersJson))
     literals = list(lettersJson.keys())
     freq = list(lettersJson.values())
 
     # for key, value in lettersJson.iterItems():
     #     literals.append(key)
     #     freq.append(value)
-    #print(literals)
-    #print(freq)
+    # print(literals)
+    # print(freq)
 
     figure = []
-    #data = dfLetters.to_dict("records")
-    #print(data)
-    #for i in lettersJson:
+    # data = dfLetters.to_dict("records")
+    # print(data)
+    # for i in lettersJson:
     figure.append(go.Scatter(
-        x = literals,
-        y = freq,
-        name = "Występowanie liter",
-        text = "Dokładna wartośc wystąpień zaznaczonego znaku"
+        x=literals,
+        y=freq,
+        name="Występowanie liter",
+        text="Dokładna wartośc wystąpień zaznaczonego znaku"
     ))
-    
+
     return {
         "data": figure,
-            'layout': go.Layout(
+        'layout': go.Layout(
             xaxis={'title': 'Litera'},
-            yaxis={'title': 'Odsetek wystąpień'}, #'range': [0, 0.2]
-            )
+            yaxis={'title': 'Odsetek wystąpień'},  # 'range': [0, 0.2]
+        )
     }
+
 
 # --------------------------BIGRAMS--------------------------
 @app.callback(
@@ -137,6 +149,7 @@ def update_figure(selectedFile):
         )
     }
 
+
 # --------------------------TRIGRAMS--------------------------
 @app.callback(
     Output("trirams-graph", "figure"),
@@ -163,5 +176,7 @@ def update_figure(selectedFile):
             yaxis={'title': 'Odsetek wystąpień'},  # 'range': [0, 0.2]
         )
     }
+
+
 if __name__ == "__main__":
     app.run_server(debug=True)
