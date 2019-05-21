@@ -31,6 +31,16 @@ tab_selected_style = {
     # 'padding': '6px'
 }
 
+list_style = {
+    # 'borderTop': '2px solid #d6d6d6',
+    # 'borderBottom': '2px solid #d6d6d6',
+    # 'backgroundColor': '#72c5ff',
+    # 'color': 'white',
+    # 'padding': '6px',
+    'fontWeight': 'bold',
+    'fontSize': '1.2em'
+}
+
 app.layout = html.Div(children=[
 
     html.H1(children="Letters, bigrams and trigrams frequency analysis in different languages"),
@@ -42,7 +52,7 @@ app.layout = html.Div(children=[
         dcc.Tab(selected_style=tab_selected_style, label='Show exemplary results', children=[
             html.Div([
                 html.Div(" "),
-                html.Label("Wybierz język do analizy"),
+                html.Label("Select language to analyze"),
                 dcc.Dropdown(
                     id="input-dropdown",
                     options=[
@@ -55,7 +65,7 @@ app.layout = html.Div(children=[
                         {"label": "Russian", "value": "russian.json"},
                         {"label": "Spanish", "value": "spanish.json"}
                     ],
-                    value="english.json"
+                    value="english.json", style=list_style
                 ),
                 html.Div(" "),
                 dcc.Tabs(id="tabs", children=[
@@ -141,7 +151,7 @@ def update_figure(selectedFile):
         x=literals,
         y=freq,
         name="Letter frequency",
-        text="The exact value of occurrences of selected character"
+        text="The exact value of occurrences of selected character",
     ))
 
     return {
@@ -206,7 +216,7 @@ def update_figure(selectedFile):
     return {
         "data": figure,
         'layout': go.Layout(
-            xaxis={'title': 'Trigram', 'type': 'category'},
+            xaxis={'title': 'Trigram'},
             yaxis={'title': 'Proportions of occurrences'},  # 'range': [0, 0.2]
         )
     }
