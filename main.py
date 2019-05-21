@@ -15,66 +15,92 @@ app.layout = html.Div(children=[
 
     html.H1(children="Analiza występowania znaków w różnych językach"),
     # html.Div(children="Projekt wykonany we frameworku Dash"),
+    html.Div(" "),
 
-    html.Label("Wybierz język do analizy"),
-    dcc.Dropdown(
-        id="input-dropdown",
-        options=[
-            {"label": "English", "value": "english.json"},
-            {"label": "English 2", "value": "english2.json"},
-            {"label": "Finnish", "value": "finnish.json"},
-            {"label": "Norwegian", "value": "norwegian.json"},
-            {"label": "Norwegian 2", "value": "norwegian2.json"},
-            {"label": "Polish", "value": "polish.json"},
-            {"label": "Russian", "value": "russian.json"},
-            {"label": "Spanish", "value": "spanish.json"}
-        ],
-        value="english.json"
-    ),
-
-    dcc.Tabs(id="tabs", children=[
-        dcc.Tab(label='Litery', children=[
+    dcc.Tabs(id="maintabs", children=[
+# ------------------------------------MAIN TAB 1-----------------------------------------
+        dcc.Tab(label='Gotowe analizy', children=[
             html.Div([
-                dcc.Graph(
-                    id='letters-graph',
-                    figure={
-                        'data': [
-                            {'x': [1, 2, 3], 'y': [4, 1, 2],
-                             'type': 'bar', 'name': 'SF'},
-                            {'x': [1, 2, 3], 'y': [2, 4, 5],
-                             'type': 'bar', 'name': u'Montréal'},
-                        ]
-                    }
-                )
+                html.Div(" "),
+                html.Label("Wybierz język do analizy"),
+                dcc.Dropdown(
+                    id="input-dropdown",
+                    options=[
+                        {"label": "English", "value": "english.json"},
+                        {"label": "English 2", "value": "english2.json"},
+                        {"label": "Finnish", "value": "finnish.json"},
+                        {"label": "Norwegian", "value": "norwegian.json"},
+                        {"label": "Norwegian 2", "value": "norwegian2.json"},
+                        {"label": "Polish", "value": "polish.json"},
+                        {"label": "Russian", "value": "russian.json"},
+                        {"label": "Spanish", "value": "spanish.json"}
+                    ],
+                    value="english.json"
+                ),
+                html.Div(" "),
+                dcc.Tabs(id="tabs", children=[
+# -------------------------------LETTERS TAB------------------------------------
+                    dcc.Tab(label='Litery', children=[
+                        html.Div([
+                            dcc.Graph(
+                                id='letters-graph',
+                                figure={
+                                    'data': [
+                                        {'x': [1, 2, 3], 'y': [4, 1, 2],
+                                         'type': 'bar', 'name': 'SF'},
+                                        {'x': [1, 2, 3], 'y': [2, 4, 5],
+                                         'type': 'bar', 'name': u'Montréal'},
+                                    ]
+                                }
+                            )
+                        ])
+                    ]),
+# -------------------------------BIGRAMS TAB------------------------------------
+                    dcc.Tab(label='Bigramy', children=[
+                        dcc.Graph(
+                            id='bigrams-graph',
+                            figure={
+                                'data': [
+                                    {'x': [1, 2, 3], 'y': [1, 4, 1],
+                                     'type': 'bar', 'name': 'SF'},
+                                    {'x': [1, 2, 3], 'y': [1, 2, 3],
+                                     'type': 'bar', 'name': u'Montréal'},
+                                ]
+                            }
+                        )
+                    ]),
+# -------------------------------TRIGRAMS TAB------------------------------------
+                    dcc.Tab(label='Trigramy', children=[
+                        dcc.Graph(
+                            id='trirams-graph',
+                            figure={
+                                'data': [
+                                    {'x': [1, 2, 3], 'y': [2, 4, 3],
+                                     'type': 'bar', 'name': 'SF'},
+                                    {'x': [1, 2, 3], 'y': [5, 4, 3],
+                                     'type': 'bar', 'name': u'Montréal'},
+                                ]
+                            }
+                        )
+                    ]),
+                ])
             ])
         ]),
-        dcc.Tab(label='Bigramy', children=[
+# ------------------------------------MAIN TAB 2-----------------------------------------
+        dcc.Tab(label='Nowa analiza', children=[
             dcc.Graph(
-                id='bigrams-graph',
+                id='example-graph-1',
                 figure={
                     'data': [
                         {'x': [1, 2, 3], 'y': [1, 4, 1],
-                         'type': 'bar', 'name': 'SF'},
+                         'type': 'bar', 'name': 'TO'},
                         {'x': [1, 2, 3], 'y': [1, 2, 3],
-                         'type': 'bar', 'name': u'Montréal'},
+                         'type': 'bar', 'name': u'DO'},
                     ]
                 }
             )
         ]),
-        dcc.Tab(label='Trigramy', children=[
-            dcc.Graph(
-                id='trirams-graph',
-                figure={
-                    'data': [
-                        {'x': [1, 2, 3], 'y': [2, 4, 3],
-                         'type': 'bar', 'name': 'SF'},
-                        {'x': [1, 2, 3], 'y': [5, 4, 3],
-                         'type': 'bar', 'name': u'Montréal'},
-                    ]
-                }
-            )
-        ]),
-    ])
+    ]),
 
 ])
 
