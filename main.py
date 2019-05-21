@@ -13,35 +13,35 @@ import pandas as pd
 import utils
 
 # Przykładowy df dla tabeli
-df = pd.read_csv(
-    'https://gist.githubusercontent.com/chriddyp/'
-    'c78bf172206ce24f77d6363a2d754b59/raw/'
-    'c353e8ef842413cae56ae3920b8fd78468aa4cb2/'
-    'usa-agricultural-exports-2011.csv')
-# Przykładowy df dla grafu
-df2 = pd.read_csv(
-    'https://gist.githubusercontent.com/chriddyp/' +
-    '5d1ea79569ed194d432e56108a04d188/raw/' +
-    'a9f9e8076b837d541398e999dcbac2b2826a81f8/'+
-    'gdp-life-exp-2007.csv')
+# df = pd.read_csv(
+#     'https://gist.githubusercontent.com/chriddyp/'
+#     'c78bf172206ce24f77d6363a2d754b59/raw/'
+#     'c353e8ef842413cae56ae3920b8fd78468aa4cb2/'
+#     'usa-agricultural-exports-2011.csv')
+# # Przykładowy df dla grafu
+# df2 = pd.read_csv(
+#     'https://gist.githubusercontent.com/chriddyp/' +
+#     '5d1ea79569ed194d432e56108a04d188/raw/' +
+#     'a9f9e8076b837d541398e999dcbac2b2826a81f8/'+
+#     'gdp-life-exp-2007.csv')
 
-def show(df):
-    app.layout = html.Div(children=[
-        html.H4(children='Litery'),
-        generate_table(df)
-    ])
+# def show(df):
+#     app.layout = html.Div(children=[
+#         html.H4(children='Litery'),
+#         generate_table(df)
+#     ])
 
 
-def generate_table(dataframe, max_rows=10):
-    return html.Table(
-        # Header
-        [html.Tr([html.Th(col) for col in dataframe.columns])] +
+# def generate_table(dataframe, max_rows=10):
+#     return html.Table(
+#         # Header
+#         [html.Tr([html.Th(col) for col in dataframe.columns])] +
 
-        # Body
-        [html.Tr([
-            html.Td(dataframe.iloc[i][col]) for col in dataframe.columns
-        ]) for i in range(min(len(dataframe), max_rows))]
-    )
+#         # Body
+#         [html.Tr([
+#             html.Td(dataframe.iloc[i][col]) for col in dataframe.columns
+#         ]) for i in range(min(len(dataframe), max_rows))]
+#     )
 
 
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
@@ -69,32 +69,32 @@ app.layout = html.Div(children=[
     ),
 
 
-    dcc.Graph(
-        id='life-exp-vs-gdp',
-        figure={
-            'data': [
-                go.Scatter(
-                    x=df2[df2['continent'] == i]['gdp per capita'],
-                    y=df2[df2['continent'] == i]['life expectancy'],
-                    text=df2[df2['continent'] == i]['country'],
-                    mode='markers',
-                    opacity=0.7,
-                    marker={
-                        'size': 15,
-                        'line': {'width': 0.5, 'color': 'white'}
-                    },
-                    name=i
-                ) for i in df2.continent.unique()
-            ],
-            'layout': go.Layout(
-                xaxis={'type': 'log', 'title': 'GDP Per Capita'},
-                yaxis={'title': 'Life Expectancy'},
-                margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
-                legend={'x': 0, 'y': 1},
-                hovermode='closest'
-            )
-        }
-    ),
+    # dcc.Graph(
+    #     id='life-exp-vs-gdp',
+    #     figure={
+    #         'data': [
+    #             go.Scatter(
+    #                 x=df2[df2['continent'] == i]['gdp per capita'],
+    #                 y=df2[df2['continent'] == i]['life expectancy'],
+    #                 text=df2[df2['continent'] == i]['country'],
+    #                 mode='markers',
+    #                 opacity=0.7,
+    #                 marker={
+    #                     'size': 15,
+    #                     'line': {'width': 0.5, 'color': 'white'}
+    #                 },
+    #                 name=i
+    #             ) for i in df2.continent.unique()
+    #         ],
+    #         'layout': go.Layout(
+    #             xaxis={'type': 'log', 'title': 'GDP Per Capita'},
+    #             yaxis={'title': 'Life Expectancy'},
+    #             margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
+    #             legend={'x': 0, 'y': 1},
+    #             hovermode='closest'
+    #         )
+    #     }
+    # ),
 
     html.Label("Choose language"),
     dcc.Dropdown(
@@ -117,7 +117,7 @@ app.layout = html.Div(children=[
               html.Div(children=[
                   html.Div(children='Występowanie liter'),
                   # Jakby tu dostać się do dfLetters i reszty to by było fajnie
-                  generate_table(df)
+                #   generate_table(df)
               ])
               ])
 
@@ -142,8 +142,33 @@ def update_figure(selectedFile):
     # dcc.Link("Litery", show(dfLetters))
 
     print(dfLetters)
-    print(dfBigrams)
-    print(dfTrigrams)
+    #print(dfBigrams)
+    #print(dfTrigrams)
+
+    figure = []
+    data = dfLetters.to_dict("records")
+    for i in lettersJson:
+        figure.append(go.Scatter(
+            x = data,
+            y = data,
+            mode='markers',
+            opacity=0.7,
+            marker={
+                'size': 15,
+                'line': {'width': 0.5, 'color': 'white'}
+            },
+        ))
+    
+    return {
+        "data": figure,
+        'layout': go.Layout(
+            xaxis={'type': 'log', 'title': 'GDP Per Capita'},
+            yaxis={'title': 'Life Expectancy', 'range': [20, 90]},
+            margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
+            legend={'x': 0, 'y': 1},
+            hovermode='closest'
+        )
+    }
 
 
 if __name__ == "__main__":
