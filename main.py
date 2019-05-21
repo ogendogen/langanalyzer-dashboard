@@ -3,100 +3,20 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import plotly.graph_objs as go
-
 import json
-import base64
-import io
-import datetime
-import pandas as pd
-
+#import pandas as pd
 import utils
-
-
-# Przykładowy df dla tabeli
-df = pd.read_csv(
-    'https://gist.githubusercontent.com/chriddyp/'
-    'c78bf172206ce24f77d6363a2d754b59/raw/'
-    'c353e8ef842413cae56ae3920b8fd78468aa4cb2/'
-    'usa-agricultural-exports-2011.csv')
-# Przykładowy df dla grafu
-df2 = pd.read_csv(
-    'https://gist.githubusercontent.com/chriddyp/' +
-    '5d1ea79569ed194d432e56108a04d188/raw/' +
-    'a9f9e8076b837d541398e999dcbac2b2826a81f8/'+
-    'gdp-life-exp-2007.csv')
-
-def show(df):
-    html.Div(children=[
-        html.H4(children='Litery'),
-        generate_table(df)
-    ])
-
-
-def generate_table(dataframe, max_rows=10):
-    return html.Table(
-        # Header
-        [html.Tr([html.Th(col) for col in dataframe.columns])] +
-
-        # Body
-        [html.Tr([
-            html.Td(dataframe.iloc[i][col]) for col in dataframe.columns
-        ]) for i in range(min(len(dataframe), max_rows))]
-    )
-
 
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div(children=[
+
     html.H1(children="Analiza występowania znaków w różnych językach"),
+    #html.Div(children="Projekt wykonany we frameworku Dash"),
 
-    html.Div(children="""
-        Projekt wykonany we frameworku Dash
-    """),
-
-    dcc.Graph(
-        id="output-graph",
-        figure={
-            "data": [
-                {"x": [1, 2, 3], "y": [4, 1, 2], "type": "bar", "name": "SF"},
-                {"x": [1, 2, 3], "y": [2, 4, 5], "type": "bar", "name": u"Montréal"},
-            ],
-            "layout": {
-                "title": "Dash Data Visualization"
-            }
-        }
-    ),
-
-    dcc.Graph(
-        id='life-exp-vs-gdp',
-        figure={
-            'data': [
-                go.Scatter(
-                    x=df2[df2['continent'] == i]['gdp per capita'],
-                    y=df2[df2['continent'] == i]['life expectancy'],
-                    text=df2[df2['continent'] == i]['country'],
-                    mode='markers',
-                    opacity=0.7,
-                    marker={
-                        'size': 15,
-                        'line': {'width': 0.5, 'color': 'white'}
-                    },
-                    name=i
-                ) for i in df2.continent.unique()
-            ],
-            'layout': go.Layout(
-                xaxis={'type': 'log', 'title': 'GDP Per Capita'},
-                yaxis={'title': 'Life Expectancy'},
-                margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
-                legend={'x': 0, 'y': 1},
-                hovermode='closest'
-            )
-        }
-    ),
-
-    html.Label("Choose language"),
+    html.Label("Wybierz język do analizy"),
     dcc.Dropdown(
         id="input-dropdown",
         options=[
@@ -108,47 +28,45 @@ app.layout = html.Div(children=[
         value="english.json"
     ),
 
-    html.A(html.Button('Przykładowy button'),
-           href='https://google.com'),
-
-    # button nic nie robi, trzeba dodać kolejne @app.callback - tylko, że się sypie
-    html.Div([html.Button('Wyświetl tabelę', id='button2'),
-
-              html.Div(children=[
-                  html.Div(children='Występowanie liter'),
-                  # Jakby tu dostać się do dfLetters i reszty to by było fajnie
-                #   generate_table(df)
-              ])
-              ]),
-
-#no dobra.. ale gdzie tu się określa typ wykresu? xD
-    html.Div(
-        dcc.Graph(
-            id='mapbox',
-            figure={
-                'data': [go.Bar(
-                    x=df['dairy'],
-                )
-                ],
-                'layout': go.Layout(
-                    legend={'x': 0},
-                    hovermode='closest'
-                )
+    dcc.Graph(
+        id="letters-graph",
+        figure={
+            "data": [
+                {"x": [1, 2, 3], "y": [4, 1, 2], "type": "bar", "name": "SF"},
+            ],
+            "layout": {
+                "title": "Występowanie liter"
             }
-        )
+        }
     ),
 
-    html.Div([
-    html.Div(dcc.Input(id='input-box', type='text')),
-    html.Button('Submit', id='button'),
-    html.Div(id='output-container-button')
+    dcc.Graph(
+        id="bigrams-graph",
+        figure={
+            "data": [
+                {"x": [1, 2, 3], "y": [4, 1, 2], "type": "bar", "name": "SF"},
+            ],
+            "layout": {
+                "title": "Występowanie bigramów"
+            }
+        }
+    ),
+
+    dcc.Graph(
+        id="trirams-graph",
+        figure={
+            "data": [
+                {"x": [1, 2, 3], "y": [4, 1, 2], "type": "bar", "name": "SF"},
+            ],
+            "layout": {
+                "title": "Występowanie trigramów"
+            }
+        }
+    )
 ])
-
-])
-
-
+# --------------------------LETTERS--------------------------
 @app.callback(
-    Output("output-graph", "figure"),
+    Output("letters-graph", "figure"),
     [Input("input-dropdown", "value")])
 def update_figure(selectedFile):
     fileContent = utils.readAllText("analysis/" + selectedFile)
@@ -157,12 +75,6 @@ def update_figure(selectedFile):
     lettersJson = eval(jsonObject["letters"])
     bigramsJson = eval(jsonObject["bigrams"])
     trigramsJson = eval(jsonObject["trigrams"])
-
-    #dfLetters = pd.DataFrame(eval(lettersJson), index=[0])
-    #dfBigrams = pd.DataFrame(eval(bigramsJson), index=[0])
-    #dfTrigrams = pd.DataFrame(eval(trigramsJson), index=[0])
-
-    # dcc.Link("Litery", show(dfLetters))
 
     #print(dfLetters)
     #print(dfBigrams)
@@ -175,9 +87,8 @@ def update_figure(selectedFile):
     # for key, value in lettersJson.iterItems():
     #     literals.append(key)
     #     freq.append(value)
-
-    print(literals)
-    print(freq)
+    #print(literals)
+    #print(freq)
 
     figure = []
     #data = dfLetters.to_dict("records")
@@ -186,35 +97,71 @@ def update_figure(selectedFile):
     figure.append(go.Scatter(
         x = literals,
         y = freq,
-        # mode='markers',
-        # opacity=0.7,
-        # marker={
-        #     'size': 15,
-        #     'line': {'width': 0.5, 'color': 'white'}
-        # },
-        #type = "bar",
-        name = "Letter freq"
+        name = "Występowanie liter",
+        text = "Dokładna wartośc wystąpień zaznaczonego znaku"
     ))
     
     return {
         "data": figure,
-        # 'layout': go.Layout(
-        #     xaxis={'type': 'log', 'title': 'GDP Per Capita'},
-        #     yaxis={'title': 'Life Expectancy', 'range': [20, 90]},
-        #     margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
-        #     legend={'x': 0, 'y': 1},
-        #     hovermode='closest'
-        # )
+            'layout': go.Layout(
+            xaxis={'title': 'Litera'},
+            yaxis={'title': 'Odsetek wystąpień'}, #'range': [0, 0.2]
+            )
     }
 
+# --------------------------BIGRAMS--------------------------
 @app.callback(
-    dash.dependencies.Output('output-container-button', 'children'),
-    [dash.dependencies.Input('button', 'n_clicks')],
-    [dash.dependencies.State('input-box', 'value')])
-def update_output(n_clicks, value):
-    show(df)
+    Output("bigrams-graph", "figure"),
+    [Input("input-dropdown", "value")])
+def update_figure(selectedFile):
+    fileContent = utils.readAllText("analysis/" + selectedFile)
+    jsonObject = json.loads(fileContent)
 
-#NIE DZIAŁA, NIC NIE DZIAŁA, ZABIJCIE MNIE, ALBO TEGO KTO WYMYŚLIŁ TO USTROJSTWO!
+    bigramsJson = eval(jsonObject["bigrams"])
+    trigramsJson = eval(jsonObject["trigrams"])
 
+    literals = list(bigramsJson.keys())
+    freq = list(bigramsJson.values())
+    figure = []
+    figure.append(go.Scatter(
+        x=literals,
+        y=freq,
+        name="Występowanie bigraów",
+        text="Dokładna wartośc wystąpień zaznaczonego bigramu"
+    ))
+    return {
+        "data": figure,
+        'layout': go.Layout(
+            xaxis={'title': 'Bigram'},
+            yaxis={'title': 'Odsetek wystąpień'},  # 'range': [0, 0.2]
+        )
+    }
+
+# --------------------------TRIGRAMS--------------------------
+@app.callback(
+    Output("trirams-graph", "figure"),
+    [Input("input-dropdown", "value")])
+def update_figure(selectedFile):
+    fileContent = utils.readAllText("analysis/" + selectedFile)
+    jsonObject = json.loads(fileContent)
+
+    trigramsJson = eval(jsonObject["trigrams"])
+
+    literals = list(trigramsJson.keys())
+    freq = list(trigramsJson.values())
+    figure = []
+    figure.append(go.Scatter(
+        x=literals,
+        y=freq,
+        name="Występowanie triraów",
+        text="Dokładna wartośc wystąpień zaznaczonego triramu"
+    ))
+    return {
+        "data": figure,
+        'layout': go.Layout(
+            xaxis={'title': 'Trigram'},
+            yaxis={'title': 'Odsetek wystąpień'},  # 'range': [0, 0.2]
+        )
+    }
 if __name__ == "__main__":
     app.run_server(debug=True)

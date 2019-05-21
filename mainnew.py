@@ -63,6 +63,16 @@ app.layout = html.Div(children=[
         value="english.json"
     ),
 
+    html.A(html.Button('Przykładowy button'),
+           href='https://google.com'),
+
+
+    html.Div([
+    html.Div(dcc.Input(id='input-box', type='text')),
+    html.Button('Submit', id='button'),
+    html.Div(id='output-container-button')
+]),
+
     dcc.Graph(
         id="output-graph",
         figure={
