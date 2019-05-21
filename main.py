@@ -69,8 +69,6 @@ app.layout = html.Div(children=[
         }
     ),
 
-
-
     dcc.Graph(
         id='life-exp-vs-gdp',
         figure={
@@ -156,42 +154,57 @@ def update_figure(selectedFile):
     fileContent = utils.readAllText("analysis/" + selectedFile)
     jsonObject = json.loads(fileContent)
 
-    lettersJson = jsonObject["letters"]
-    bigramsJson = jsonObject["bigrams"]
-    trigramsJson = jsonObject["trigrams"]
+    lettersJson = eval(jsonObject["letters"])
+    bigramsJson = eval(jsonObject["bigrams"])
+    trigramsJson = eval(jsonObject["trigrams"])
 
-    dfLetters = pd.DataFrame(eval(lettersJson), index=[0])
-    dfBigrams = pd.DataFrame(eval(bigramsJson), index=[0])
-    dfTrigrams = pd.DataFrame(eval(trigramsJson), index=[0])
+    #dfLetters = pd.DataFrame(eval(lettersJson), index=[0])
+    #dfBigrams = pd.DataFrame(eval(bigramsJson), index=[0])
+    #dfTrigrams = pd.DataFrame(eval(trigramsJson), index=[0])
+
     # dcc.Link("Litery", show(dfLetters))
 
-    print(dfLetters)
+    #print(dfLetters)
     #print(dfBigrams)
     #print(dfTrigrams)
 
+    #print(eval(lettersJson))
+    literals = list(lettersJson.keys())
+    freq = list(lettersJson.values())
+
+    # for key, value in lettersJson.iterItems():
+    #     literals.append(key)
+    #     freq.append(value)
+
+    print(literals)
+    print(freq)
+
     figure = []
-    data = dfLetters.to_dict("records")
-    for i in lettersJson:
-        figure.append(go.Scatter(
-            x = data,
-            y = data,
-            mode='markers',
-            opacity=0.7,
-            marker={
-                'size': 15,
-                'line': {'width': 0.5, 'color': 'white'}
-            },
-        ))
+    #data = dfLetters.to_dict("records")
+    #print(data)
+    #for i in lettersJson:
+    figure.append(go.Scatter(
+        x = literals,
+        y = freq,
+        # mode='markers',
+        # opacity=0.7,
+        # marker={
+        #     'size': 15,
+        #     'line': {'width': 0.5, 'color': 'white'}
+        # },
+        #type = "bar",
+        name = "Letter freq"
+    ))
     
     return {
         "data": figure,
-        'layout': go.Layout(
-            xaxis={'type': 'log', 'title': 'GDP Per Capita'},
-            yaxis={'title': 'Life Expectancy', 'range': [20, 90]},
-            margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
-            legend={'x': 0, 'y': 1},
-            hovermode='closest'
-        )
+        # 'layout': go.Layout(
+        #     xaxis={'type': 'log', 'title': 'GDP Per Capita'},
+        #     yaxis={'title': 'Life Expectancy', 'range': [20, 90]},
+        #     margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
+        #     legend={'x': 0, 'y': 1},
+        #     hovermode='closest'
+        # )
     }
 
 @app.callback(
