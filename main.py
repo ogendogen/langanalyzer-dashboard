@@ -12,7 +12,23 @@ external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 tabs_styles = {
-    'height': '244px'
+    # 'height': '244px'
+    'fontWeight': 'bold',
+    'fontSize': '1.8em',
+}
+
+tabs_styles2 = {
+    # 'height': '244px'
+    'fontWeight': 'bold',
+    'fontSize': '1.2em',
+}
+
+tab_selected_style = {
+    # 'borderTop': '1px solid #d6d6d6',
+    # 'borderBottom': '1px solid #d6d6d6',
+    'backgroundColor': '#72c5ff',
+    # 'color': 'white',
+    # 'padding': '6px'
 }
 
 app.layout = html.Div(children=[
@@ -22,8 +38,8 @@ app.layout = html.Div(children=[
     html.Div(" "),
 
     dcc.Tabs(id="maintabs", children=[
-# ------------------------------------MAIN TAB 1-----------------------------------------
-        dcc.Tab(label='Show exemplary results', children=[
+        # ------------------------------------MAIN TAB 1-----------------------------------------
+        dcc.Tab(selected_style=tab_selected_style, label='Show exemplary results', children=[
             html.Div([
                 html.Div(" "),
                 html.Label("Wybierz język do analizy"),
@@ -43,8 +59,8 @@ app.layout = html.Div(children=[
                 ),
                 html.Div(" "),
                 dcc.Tabs(id="tabs", children=[
-# -------------------------------LETTERS TAB------------------------------------
-                    dcc.Tab(label='Letters', children=[
+                    # -------------------------------LETTERS TAB------------------------------------
+                    dcc.Tab(selected_style=tab_selected_style, label='Letters', children=[
                         html.Div([
                             dcc.Graph(
                                 id='letters-graph',
@@ -56,8 +72,8 @@ app.layout = html.Div(children=[
                             )
                         ])
                     ]),
-# -------------------------------BIGRAMS TAB------------------------------------
-                    dcc.Tab(label='Bigrams', children=[
+                    # -------------------------------BIGRAMS TAB------------------------------------
+                    dcc.Tab(selected_style=tab_selected_style, label='Bigrams', children=[
                         dcc.Graph(
                             id='bigrams-graph',
                             figure={
@@ -67,8 +83,8 @@ app.layout = html.Div(children=[
                             }
                         )
                     ]),
-# -------------------------------TRIGRAMS TAB------------------------------------
-                    dcc.Tab(label='Trigrams', children=[
+                    # -------------------------------TRIGRAMS TAB------------------------------------
+                    dcc.Tab(selected_style=tab_selected_style, label='Trigrams', children=[
                         dcc.Graph(
                             id='trirams-graph',
                             figure={
@@ -78,11 +94,11 @@ app.layout = html.Div(children=[
                             }
                         )
                     ]),
-                ])
+                ], style=tabs_styles2)
             ])
         ]),
-# ------------------------------------MAIN TAB 2-----------------------------------------
-        dcc.Tab(label='Run a new analysis', children=[
+        # ------------------------------------MAIN TAB 2-----------------------------------------
+        dcc.Tab(selected_style=tab_selected_style, label='Run a new analysis', children=[
             dcc.Graph(
                 id='example-graph-1',
                 figure={
@@ -92,7 +108,7 @@ app.layout = html.Div(children=[
                 }
             )
         ]),
-    ]),
+    ], style=tabs_styles),
 
 ])
 
@@ -136,6 +152,7 @@ def update_figure(selectedFile):
         )
     }
 
+
 # --------------------------BIGRAMS--------------------------
 @app.callback(
     Output("bigrams-graph", "figure"),
@@ -165,6 +182,7 @@ def update_figure(selectedFile):
             yaxis={'title': 'Proportions of occurrences'},  # 'range': [0, 0.2]
         )
     }
+
 
 # --------------------------TRIGRAMS--------------------------
 @app.callback(
