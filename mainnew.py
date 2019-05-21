@@ -15,6 +15,8 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 global tmp
 tmp = "english.json"
 
+def updateTmp(lang):
+    tmp = lang
 
 def update_figure(selectedFile):
     fileContent = utils.readAllText("analysis/" + selectedFile)
@@ -83,6 +85,7 @@ def update(value):
     print("Tmp:" + tmp)
     if value.strip() != tmp.strip():
         print("Fałsz")
+        updateTmp(value)
         return {
             "data": [
                 {"x": ['e', 't', 'a', 'o', 'i', 'h', 'n', 's', 'r', 'd', 'l', 'u', 'c', 'w', 'g', 'f', 'm', 'p', 'y',
@@ -95,7 +98,7 @@ def update(value):
                        0.00073564], "type": "bar", "name": "SciFi"},
             ],
             "layout": {
-                "title": "Zmieniony tytuł fałsz"
+                "title": "Zmieniony tytuł - wartości podane na sztywno"
             }
         }
     else:
@@ -111,7 +114,7 @@ def update(value):
                 {"x": col, "y": val[7:-2], "type": "bar", "name": "SciFi"},
             ],
             "layout": {
-                "title": "Zmieniony tytuł prawda"
+                "title": "Zmieniony tytuł - wartości podane stringiem"
             }
         }
 
