@@ -29,6 +29,7 @@ app.layout = html.Div(
 
 @app.callback(Output("graph", "figure"), [Input(d, "value") for d in dimensions])
 def make_figure(x, y, color, facet_col, facet_row):
+
     return px.scatter(
         tips,
         x=x,
