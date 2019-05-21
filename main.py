@@ -131,7 +131,7 @@ def update_figure(selectedFile):
     fileContent = utils.readAllText("analysis/" + selectedFile)
     jsonObject = json.loads(fileContent)
 
-    lettersJson = eval(jsonObject["letters"])
+    lettersJson = eval(str(jsonObject["letters"]))
 
     # print(eval(lettersJson))
     literals = list(lettersJson.keys())
@@ -172,9 +172,11 @@ def update_figure(selectedFile):
     jsonObject = json.loads(fileContent)
 
     try:
-        bigramsJson = eval(jsonObject["bigrams"])
+        bigramsJson = eval(str(jsonObject["bigrams"]))
     except TypeError:
-        bigramsJson = eval(jsonObject["digrams"])
+        bigramsJson = eval(str(jsonObject["digrams"]))
+    except KeyError:
+        bigramsJson = eval(str(jsonObject["digrams"]))
 
     literals = list(bigramsJson.keys())
     freq = list(bigramsJson.values())
@@ -202,7 +204,7 @@ def update_figure(selectedFile):
     fileContent = utils.readAllText("analysis/" + selectedFile)
     jsonObject = json.loads(fileContent)
 
-    trigramsJson = eval(jsonObject["trigrams"])
+    trigramsJson = eval(str(jsonObject["trigrams"]))
 
     literals = list(trigramsJson.keys())
     freq = list(trigramsJson.values())
