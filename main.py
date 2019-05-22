@@ -1,18 +1,21 @@
 import base64
-
+from flask import Flask, send_from_directory
+import os
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 import plotly.graph_objs as go
 import json
-# import pandas as pd
+from urllib.parse import quote as urlquote
 import utils
 from collections import OrderedDict
 
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+# app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+server = Flask(__name__)
+app = dash.Dash(server=server, external_stylesheets=external_stylesheets)
 
 tabs_styles = {
     # 'height': '244px'
@@ -43,26 +46,40 @@ list_style = {
     'fontWeight': 'bold',
     'fontSize': '1.2em'
 }
-# --------------------------file reader--------------------------
-def parse_contents(contents, filename, date):
-    #TODO Lipa, nawet jak to zadziała to znowu kolejne problemy z kodowanie (brak ąę i innych)
-    #print(contents)
-    content_type, content_string = contents.split(',')
-    decoded = base64.b64decode(contents)
-    #decoded = contents.encode('UTF-8')
 
-    strcont = str(decoded)
-    print(strcont)
-    #print(strcont[47:-2])
-    try:
-            f = open("language-analyzer/text samples/" + filename, "w", encoding="utf8")
-            f.write(str(decoded))
-            f.close()
-    except Exception as e:
-        print(e)
-        return html.Div([
-            'There was an error processing this file.'
-        ])
+# --------------------------file reader--------------------------
+UPLOAD_DIRECTORY = "/language-analyzer/text samples"
+if not os.path.exists(UPLOAD_DIRECTORY):
+    os.makedirs(UPLOAD_DIRECTORY)
+
+
+@server.route("/download/<path:path>")
+def download(path):
+    """Serve a file from the upload directory."""
+    return send_from_directory(UPLOAD_DIRECTORY, path, as_attachment=True)
+
+
+def save_file(name, content):
+    """Decode and store a file uploaded with Plotly Dash."""
+    data = content.encode("utf8").split(b";base64,")[1]
+    with open(os.path.join(UPLOAD_DIRECTORY, name), "wb") as fp:
+        fp.write(base64.decodebytes(data))
+
+
+def uploaded_files():
+    """List the files in the upload directory."""
+    files = []
+    for filename in os.listdir(UPLOAD_DIRECTORY):
+        path = os.path.join(UPLOAD_DIRECTORY, filename)
+        if os.path.isfile(path):
+            files.append(filename)
+    return files
+
+
+def file_download_link(filename):
+    """Create a Plotly Dash 'A' element that downloads a file from the app."""
+    location = "/download/{}".format(urlquote(filename))
+    return html.A(filename, href=location)
 
 
 app.layout = html.Div(children=[
@@ -161,31 +178,32 @@ app.layout = html.Div(children=[
         ]),
         # ------------------------------------MAIN TAB 2-----------------------------------------
         dcc.Tab(selected_style=tab_selected_style, label='Run a new analysis', children=[
+            html.H2(" "),
+            html.H2("Here you can upload .txt files to analyse"),
             dcc.Upload(
-                id='upload-data',
-                children=html.Div([
-                    'Drag and Drop or ',
-                    html.A('Select Files')
-                ]),
+                id="upload-data",
+                children=html.Div(
+                    ["Drag and drop or click to select a file to upload."]
+                ),
                 style={
-                    'width': '100%',
-                    'height': '60px',
-                    'lineHeight': '60px',
-                    'borderWidth': '1px',
-                    'borderStyle': 'dashed',
-                    'borderRadius': '5px',
-                    'textAlign': 'center',
-                    'margin': '10px'
+                    "width": "60%",
+                    "height": "60px",
+                    "lineHeight": "60px",
+                    "borderWidth": "2px",
+                    "borderStyle": "dashed",
+                    "borderRadius": "5px",
+                    "textAlign": "center",
+                    "margin": "10px",
+                    "fontSize": "1.4em",
                 },
-                # Allow multiple files to be uploaded
-                multiple=True
+                multiple=True,
             ),
-            html.Div(id='output-data-upload')
+            html.H2("File List"),
+            html.Ul(id="file-list"),
         ]),
     ], style=tabs_styles),
 
 ])
-
 
 # --------------------------LETTERS--------------------------
 # --------------------------sorted--------------------------
@@ -380,16 +398,22 @@ def update_figure(selectedFile):
 
 
 # --------------------------FILE READER--------------------------
-@app.callback(Output('output-data-upload', 'children'),
-              [Input('upload-data', 'contents')],
-              [State('upload-data', 'filename'),
-               State('upload-data', 'last_modified')])
-def update_output(list_of_contents, list_of_names, list_of_dates):
-    if list_of_contents is not None:
-        children = [
-            parse_contents(c, n, d) for c, n, d in
-            zip(list_of_contents, list_of_names, list_of_dates)]
-        return children
+@app.callback(
+    Output("file-list", "children"),
+    [Input("upload-data", "filename"), Input("upload-data", "contents")],
+)
+def update_output(uploaded_filenames, uploaded_file_contents):
+    """Save uploaded files and regenerate the file list."""
+
+    if uploaded_filenames is not None and uploaded_file_contents is not None:
+        for name, data in zip(uploaded_filenames, uploaded_file_contents):
+            save_file(name, data)
+
+    files = uploaded_files()
+    if len(files) == 0:
+        return [html.Li("No files yet!")]
+    else:
+        return [html.Li(file_download_link(filename)) for filename in files]
 
 
 if __name__ == "__main__":
