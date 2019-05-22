@@ -48,6 +48,7 @@ list_style = {
 }
 
 # --------------------------file reader--------------------------
+# https://docs.faculty.ai/user-guide/apps/examples/dash_file_upload_download.html
 UPLOAD_DIRECTORY = "/language-analyzer/text samples"
 if not os.path.exists(UPLOAD_DIRECTORY):
     os.makedirs(UPLOAD_DIRECTORY)
