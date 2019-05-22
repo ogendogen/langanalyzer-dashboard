@@ -55,7 +55,7 @@ def parse_contents(contents, filename, date):
     print(strcont)
     #print(strcont[47:-2])
     try:
-            f = open("language-analyzer/cleared data/" + filename, "w", encoding="utf8")
+            f = open("language-analyzer/text samples/" + filename, "w", encoding="utf8")
             f.write(str(decoded))
             f.close()
     except Exception as e:
