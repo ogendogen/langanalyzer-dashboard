@@ -1,7 +1,9 @@
+import base64
+
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
 import json
 # import pandas as pd
@@ -41,6 +43,27 @@ list_style = {
     'fontWeight': 'bold',
     'fontSize': '1.2em'
 }
+# --------------------------file reader--------------------------
+def parse_contents(contents, filename, date):
+    #TODO Lipa, nawet jak to zadziała to znowu kolejne problemy z kodowanie (brak ąę i innych)
+    #print(contents)
+    content_type, content_string = contents.split(',')
+    decoded = base64.b64decode(contents)
+    #decoded = contents.encode('UTF-8')
+
+    strcont = str(decoded)
+    print(strcont)
+    #print(strcont[47:-2])
+    try:
+            f = open("language-analyzer/cleared data/" + filename, "w", encoding="utf8")
+            f.write(str(decoded))
+            f.close()
+    except Exception as e:
+        print(e)
+        return html.Div([
+            'There was an error processing this file.'
+        ])
+
 
 app.layout = html.Div(children=[
 
@@ -138,18 +161,31 @@ app.layout = html.Div(children=[
         ]),
         # ------------------------------------MAIN TAB 2-----------------------------------------
         dcc.Tab(selected_style=tab_selected_style, label='Run a new analysis', children=[
-            dcc.Graph(
-                id='example-graph-1',
-                figure={
-                    'data': [
-                        {'x': [1], 'y': [2]},
-                    ]
-                }
-            )
+            dcc.Upload(
+                id='upload-data',
+                children=html.Div([
+                    'Drag and Drop or ',
+                    html.A('Select Files')
+                ]),
+                style={
+                    'width': '100%',
+                    'height': '60px',
+                    'lineHeight': '60px',
+                    'borderWidth': '1px',
+                    'borderStyle': 'dashed',
+                    'borderRadius': '5px',
+                    'textAlign': 'center',
+                    'margin': '10px'
+                },
+                # Allow multiple files to be uploaded
+                multiple=True
+            ),
+            html.Div(id='output-data-upload')
         ]),
     ], style=tabs_styles),
 
 ])
+
 
 # --------------------------LETTERS--------------------------
 # --------------------------sorted--------------------------
@@ -341,6 +377,19 @@ def update_figure(selectedFile):
             yaxis={'title': 'Proportions of occurrences'},  # 'range': [0, 0.2]
         )
     }
+
+
+# --------------------------FILE READER--------------------------
+@app.callback(Output('output-data-upload', 'children'),
+              [Input('upload-data', 'contents')],
+              [State('upload-data', 'filename'),
+               State('upload-data', 'last_modified')])
+def update_output(list_of_contents, list_of_names, list_of_dates):
+    if list_of_contents is not None:
+        children = [
+            parse_contents(c, n, d) for c, n, d in
+            zip(list_of_contents, list_of_names, list_of_dates)]
+        return children
 
 
 if __name__ == "__main__":
