@@ -6,6 +6,7 @@ import plotly.graph_objs as go
 import json
 # import pandas as pd
 import utils
+from collections import OrderedDict
 
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
@@ -80,12 +81,32 @@ app.layout = html.Div(children=[
                                     ]
                                 }
                             )
-                        ])
+                        ]),
+                        dcc.Tab(selected_style=tab_selected_style, label='Letters', children=[
+                            html.Div([
+                                dcc.Graph(
+                                    id='letters-graph2',
+                                    figure={
+                                        'data': [
+                                            {'x': [1], 'y': [2]},
+                                        ]
+                                    }
+                                )
+                            ])
+                        ]),
                     ]),
                     # -------------------------------BIGRAMS TAB------------------------------------
                     dcc.Tab(selected_style=tab_selected_style, label='Bigrams', children=[
                         dcc.Graph(
                             id='bigrams-graph',
+                            figure={
+                                'data': [
+                                    {'x': [1], 'y': [2]},
+                                ]
+                            }
+                        ),
+                        dcc.Graph(
+                            id='bigrams-graph2',
                             figure={
                                 'data': [
                                     {'x': [1], 'y': [2]},
@@ -97,6 +118,14 @@ app.layout = html.Div(children=[
                     dcc.Tab(selected_style=tab_selected_style, label='Trigrams', children=[
                         dcc.Graph(
                             id='trirams-graph',
+                            figure={
+                                'data': [
+                                    {'x': [1], 'y': [2]},
+                                ]
+                            }
+                        ),
+                        dcc.Graph(
+                            id='trirams-graph2',
                             figure={
                                 'data': [
                                     {'x': [1], 'y': [2]},
@@ -122,8 +151,8 @@ app.layout = html.Div(children=[
 
 ])
 
-
 # --------------------------LETTERS--------------------------
+# --------------------------sorted--------------------------
 @app.callback(
     Output("letters-graph", "figure"),
     [Input("input-dropdown", "value")])
@@ -132,21 +161,43 @@ def update_figure(selectedFile):
     jsonObject = json.loads(fileContent)
 
     lettersJson = eval(str(jsonObject["letters"]))
+    sort = OrderedDict(sorted(lettersJson.items(), key=lambda item: item[1], reverse=True))
 
-    # print(eval(lettersJson))
-    literals = list(lettersJson.keys())
-    freq = list(lettersJson.values())
-
-    # for key, value in lettersJson.iterItems():
-    #     literals.append(key)
-    #     freq.append(value)
-    # print(literals)
-    # print(freq)
+    literals = list(sort.keys())
+    freq = list(sort.values())
 
     figure = []
-    # data = dfLetters.to_dict("records")
-    # print(data)
-    # for i in lettersJson:
+    figure.append(go.Scatter(
+        x=literals,
+        y=freq,
+        name="Letter frequency",
+        text="The exact value of occurrences of selected character",
+    ))
+
+    return {
+        "data": figure,
+        'layout': go.Layout(
+            xaxis={'title': 'Letter'},
+            yaxis={'title': 'Proportions of occurrences'},  # 'range': [0, 0.2]
+        )
+    }
+
+
+# --------------------------alphabetical--------------------------
+@app.callback(
+    Output("letters-graph2", "figure"),
+    [Input("input-dropdown", "value")])
+def update_figure(selectedFile):
+    fileContent = utils.readAllText("analysis/" + selectedFile)
+    jsonObject = json.loads(fileContent)
+
+    lettersJson = eval(str(jsonObject["letters"]))
+    alphabetical = OrderedDict(sorted(lettersJson.items(), key=lambda item: item[0]))
+
+    literals = list(alphabetical.keys())
+    freq = list(alphabetical.values())
+
+    figure = []
     figure.append(go.Scatter(
         x=literals,
         y=freq,
@@ -164,6 +215,7 @@ def update_figure(selectedFile):
 
 
 # --------------------------BIGRAMS--------------------------
+# --------------------------sorted--------------------------
 @app.callback(
     Output("bigrams-graph", "figure"),
     [Input("input-dropdown", "value")])
@@ -178,8 +230,44 @@ def update_figure(selectedFile):
     except KeyError:
         bigramsJson = eval(str(jsonObject["digrams"]))
 
-    literals = list(bigramsJson.keys())
-    freq = list(bigramsJson.values())
+    sort = OrderedDict(sorted(bigramsJson.items(), key=lambda item: item[1], reverse=True))
+    alphabetical = OrderedDict(sorted(bigramsJson.items(), key=lambda item: item[0]))
+    literals = list(sort.keys())
+    freq = list(sort.values())
+    figure = []
+    figure.append(go.Scatter(
+        x=literals,
+        y=freq,
+        name="Bigrams frequency",
+        text="The exact value of occurrences of selected bigram"
+    ))
+    return {
+        "data": figure,
+        'layout': go.Layout(
+            xaxis={'title': 'Bigram'},
+            yaxis={'title': 'Proportions of occurrences'},  # 'range': [0, 0.2]
+        )
+    }
+
+
+# --------------------------alphabetical--------------------------
+@app.callback(
+    Output("bigrams-graph2", "figure"),
+    [Input("input-dropdown", "value")])
+def update_figure(selectedFile):
+    fileContent = utils.readAllText("analysis/" + selectedFile)
+    jsonObject = json.loads(fileContent)
+
+    try:
+        bigramsJson = eval(str(jsonObject["bigrams"]))
+    except TypeError:
+        bigramsJson = eval(str(jsonObject["digrams"]))
+    except KeyError:
+        bigramsJson = eval(str(jsonObject["digrams"]))
+
+    alphabetical = OrderedDict(sorted(bigramsJson.items(), key=lambda item: item[0]))
+    literals = list(alphabetical.keys())
+    freq = list(alphabetical.values())
     figure = []
     figure.append(go.Scatter(
         x=literals,
@@ -197,6 +285,7 @@ def update_figure(selectedFile):
 
 
 # --------------------------TRIGRAMS--------------------------
+# --------------------------sorted--------------------------
 @app.callback(
     Output("trirams-graph", "figure"),
     [Input("input-dropdown", "value")])
@@ -205,9 +294,39 @@ def update_figure(selectedFile):
     jsonObject = json.loads(fileContent)
 
     trigramsJson = eval(str(jsonObject["trigrams"]))
+    sort = OrderedDict(sorted(trigramsJson.items(), key=lambda item: item[1], reverse=True))
 
-    literals = list(trigramsJson.keys())
-    freq = list(trigramsJson.values())
+    literals = list(sort.keys())
+    freq = list(sort.values())
+    figure = []
+    figure.append(go.Scatter(
+        x=literals,
+        y=freq,
+        name="Trigram frequency",
+        text="The exact value of occurrences of selected trigram",
+    ))
+    return {
+        "data": figure,
+        'layout': go.Layout(
+            xaxis={'title': 'Trigram'},
+            yaxis={'title': 'Proportions of occurrences'},  # 'range': [0, 0.2]
+        )
+    }
+
+
+# --------------------------alphabetical--------------------------
+@app.callback(
+    Output("trirams-graph2", "figure"),
+    [Input("input-dropdown", "value")])
+def update_figure(selectedFile):
+    fileContent = utils.readAllText("analysis/" + selectedFile)
+    jsonObject = json.loads(fileContent)
+
+    trigramsJson = eval(str(jsonObject["trigrams"]))
+    alphabetical = OrderedDict(sorted(trigramsJson.items(), key=lambda item: item[0]))
+
+    literals = list(alphabetical.keys())
+    freq = list(alphabetical.values())
     figure = []
     figure.append(go.Scatter(
         x=literals,
