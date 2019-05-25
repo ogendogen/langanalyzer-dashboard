@@ -209,13 +209,43 @@ app.layout = html.Div(children=[
             ),
             html.H2("File List"),
             html.Ul(id="file-list"),
+            html.Div([
+                dcc.Graph(
+                    id='letters-graph-tab2',
+                    figure={
+                        'data': [
+                            {'x': [1], 'y': [2]},
+                        ]
+                    }
+                )
+            ]),
+            html.Div([
+                dcc.Graph(
+                    id='bigrams-graph-tab2',
+                    figure={
+                        'data': [
+                            {'x': [1], 'y': [2]},
+                        ]
+                    }
+                )
+            ]),
+            html.Div([
+                dcc.Graph(
+                    id='trigrams-graph-tab2',
+                    figure={
+                        'data': [
+                            {'x': [1], 'y': [2]},
+                        ]
+                    }
+                )
+            ])
         ]),
     ], style=tabs_styles),
 
 ])
 
 # --------------------------LETTERS--------------------------
-# --------------------------sorted--------------------------
+# --------------------------sorted---------------------------
 @app.callback(
     Output("letters-graph", "figure"),
     [Input("input-dropdown", "value")])
@@ -427,6 +457,110 @@ def update_output(uploaded_filenames, uploaded_file_contents):
     else:
         return [html.Li(file_download_link(filename)) for filename in files]
 
+# ---------------------- FILE READER FOR ANALYSIS: LETTERS ---------------------------
+@app.callback(
+    Output("letters-graph-tab2", "figure"),
+    [Input("upload-data", "filename"), Input("upload-data", "contents")],
+)
+def update_output(uploaded_filenames, uploaded_file_contents):
+
+    if uploaded_file_contents is None:
+        exit()
+
+    analysisResult = apiAnalyzer.startAnalyzer(uploaded_file_contents)
+    jsonObject = json.loads(analysisResult)
+
+    lettersJson = eval(str(jsonObject["letters"]))
+    sort = OrderedDict(sorted(lettersJson.items(), key=lambda item: item[1], reverse=True))
+
+    literals = list(sort.keys())
+    freq = list(sort.values())
+
+    figure = []
+    figure.append(go.Scatter(
+        x=literals,
+        y=freq,
+        name="Letter frequency",
+        text="The exact value of occurrences of selected character",
+    ))
+
+    return {
+        "data": figure,
+        'layout': go.Layout(
+            xaxis={'title': 'Letter'},
+            yaxis={'title': 'Proportions of occurrences'},  # 'range': [0, 0.2]
+        )
+    }
+
+# ----------------------- FILE READER FOR ANALYSIS: BIGRAMS ----------------------
+@app.callback(
+    Output("bigrams-graph-tab2", "figure"),
+    [Input("upload-data", "filename"), Input("upload-data", "contents")],
+)
+def update_output(uploaded_filenames, uploaded_file_contents):
+
+    if uploaded_file_contents is None:
+        exit()
+        
+    analysisResult = apiAnalyzer.startAnalyzer(uploaded_file_contents)
+    jsonObject = json.loads(analysisResult)
+
+    lettersJson = eval(str(jsonObject["bigrams"]))
+    sort = OrderedDict(sorted(lettersJson.items(), key=lambda item: item[1], reverse=True))
+
+    literals = list(sort.keys())
+    freq = list(sort.values())
+
+    figure = []
+    figure.append(go.Scatter(
+        x=literals,
+        y=freq,
+        name="Bigram frequency",
+        text="The exact value of occurrences of selected bigram",
+    ))
+
+    return {
+        "data": figure,
+        'layout': go.Layout(
+            xaxis={'title': 'Bigram'},
+            yaxis={'title': 'Proportions of occurrences'},  # 'range': [0, 0.2]
+        )
+    }
+
+# ----------------------- FILE READER FOR ANALYSIS: TRIGRAMS ----------------------
+@app.callback(
+    Output("trigrams-graph-tab2", "figure"),
+    [Input("upload-data", "filename"), Input("upload-data", "contents")],
+)
+def update_output(uploaded_filenames, uploaded_file_contents):
+
+    if uploaded_file_contents is None:
+        exit()
+        
+    analysisResult = apiAnalyzer.startAnalyzer(uploaded_file_contents)
+    jsonObject = json.loads(analysisResult)
+
+    lettersJson = eval(str(jsonObject["trigrams"]))
+    sort = OrderedDict(sorted(lettersJson.items(), key=lambda item: item[1], reverse=True))
+
+    literals = list(sort.keys())
+    freq = list(sort.values())
+
+    figure = []
+    figure.append(go.Scatter(
+        x=literals,
+        y=freq,
+        name="Trigram frequency",
+        text="The exact value of occurrences of selected trigram",
+    ))
+
+    return {
+        "data": figure,
+        'layout': go.Layout(
+            xaxis={'title': 'Trigram'},
+            yaxis={'title': 'Proportions of occurrences'},  # 'range': [0, 0.2]
+        )
+    }
 
 if __name__ == "__main__":
     app.run_server(debug=True)
