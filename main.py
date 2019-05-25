@@ -408,6 +408,9 @@ def update_output(uploaded_filenames, uploaded_file_contents):
 
     if uploaded_filenames is not None and uploaded_file_contents is not None:
         for name, data in zip(uploaded_filenames, uploaded_file_contents):
+            if ".txt" not in name:
+                print("Not txt file!")
+                exit()
             save_file(name, data)
 
     files = uploaded_files()
