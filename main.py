@@ -14,6 +14,7 @@ import sys
 
 # analyzer API
 import apiAnalyzer
+
 # sample call:
 # print(apiAnalyzer.startAnalyzer("anksdajksdjknsadnjksandiuoqwjeiuojzskd"))
 
@@ -54,23 +55,27 @@ list_style = {
 }
 
 # --------------------------file reader--------------------------
-# https://docs.faculty.ai/user-guide/apps/examples/dash_file_upload_download.html
-UPLOAD_DIRECTORY = "/language-analyzer/text samples"
+UPLOAD_DIRECTORY = "language-analyzer/text samples new"
 if not os.path.exists(UPLOAD_DIRECTORY):
     os.makedirs(UPLOAD_DIRECTORY)
+
+
+def save_file(name, content):
+    data = content.encode("utf8").split(b";base64,")[1]
+    with open(UPLOAD_DIRECTORY + "/" + name, "wb") as fp:
+        fp.write(base64.decodebytes(data))
+
+    apiAnalyzer.writeAllText("analysis/" + name[:-3] + "json",
+                             apiAnalyzer.startAnalyzer(apiAnalyzer.readAllText(os.path.join(UPLOAD_DIRECTORY, name))))
+
+    # List of options is not dynamic, requires page refresh
+    options.insert(options.__sizeof__(), {"label": name[:-4], "value": name[:-3] + "json"})
 
 
 @server.route("/download/<path:path>")
 def download(path):
     """Serve a file from the upload directory."""
     return send_from_directory(UPLOAD_DIRECTORY, path, as_attachment=True)
-
-
-def save_file(name, content):
-    """Decode and store a file uploaded with Plotly Dash."""
-    data = content.encode("utf8").split(b";base64,")[1]
-    with open(os.path.join(UPLOAD_DIRECTORY, name), "wb") as fp:
-        fp.write(base64.decodebytes(data))
 
 
 def uploaded_files():
@@ -88,8 +93,19 @@ def file_download_link(filename):
     location = "/download/{}".format(urlquote(filename))
     return html.A(filename, href=location)
 
+
 def processAnalysis(data):
     print("todo")
+
+
+options = [{"label": "English", "value": "english.json"},
+           {"label": "English 2", "value": "english2.json"},
+           {"label": "Finnish", "value": "finnish.json"},
+           {"label": "Norwegian", "value": "norwegian.json"},
+           {"label": "Norwegian 2", "value": "norwegian2.json"},
+           {"label": "Polish", "value": "polish.json"},
+           {"label": "Russian", "value": "russian.json"},
+           {"label": "Spanish", "value": "spanish.json"}]
 
 app.layout = html.Div(children=[
 
@@ -99,22 +115,13 @@ app.layout = html.Div(children=[
 
     dcc.Tabs(id="maintabs", children=[
         # ------------------------------------MAIN TAB 1-----------------------------------------
-        dcc.Tab(selected_style=tab_selected_style, label='Show exemplary results', children=[
+        dcc.Tab(selected_style=tab_selected_style, label='Show results', children=[
             html.Div([
                 html.Div(" "),
                 html.Label("Select language to analyze"),
                 dcc.Dropdown(
                     id="input-dropdown",
-                    options=[
-                        {"label": "English", "value": "english.json"},
-                        {"label": "English 2", "value": "english2.json"},
-                        {"label": "Finnish", "value": "finnish.json"},
-                        {"label": "Norwegian", "value": "norwegian.json"},
-                        {"label": "Norwegian 2", "value": "norwegian2.json"},
-                        {"label": "Polish", "value": "polish.json"},
-                        {"label": "Russian", "value": "russian.json"},
-                        {"label": "Spanish", "value": "spanish.json"}
-                    ],
+                    options=options,
                     value="english.json", style=list_style
                 ),
                 html.Div(" "),
@@ -186,7 +193,7 @@ app.layout = html.Div(children=[
             ])
         ]),
         # ------------------------------------MAIN TAB 2-----------------------------------------
-        dcc.Tab(selected_style=tab_selected_style, label='Run a new analysis', children=[
+        dcc.Tab(selected_style=tab_selected_style, label='Add a new analysis', children=[
             html.H2(" "),
             html.H2("Here you can upload .txt files to analyse"),
             dcc.Upload(
@@ -213,6 +220,7 @@ app.layout = html.Div(children=[
     ], style=tabs_styles),
 
 ])
+
 
 # --------------------------LETTERS--------------------------
 # --------------------------sorted--------------------------
@@ -425,6 +433,7 @@ def update_output(uploaded_filenames, uploaded_file_contents):
     if len(files) == 0:
         return [html.Li("No files yet!")]
     else:
+
         return [html.Li(file_download_link(filename)) for filename in files]
 
 
