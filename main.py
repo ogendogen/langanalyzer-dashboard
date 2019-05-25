@@ -10,6 +10,12 @@ import json
 from urllib.parse import quote as urlquote
 import utils
 from collections import OrderedDict
+import sys
+
+# analyzer API
+import apiAnalyzer
+# sample call:
+# print(apiAnalyzer.startAnalyzer("anksdajksdjknsadnjksandiuoqwjeiuojzskd"))
 
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
@@ -82,6 +88,8 @@ def file_download_link(filename):
     location = "/download/{}".format(urlquote(filename))
     return html.A(filename, href=location)
 
+def processAnalysis(data):
+    print("todo")
 
 app.layout = html.Div(children=[
 
