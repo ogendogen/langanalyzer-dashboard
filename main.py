@@ -97,16 +97,16 @@ def file_download_link(filename):
 def processAnalysis(data):
     print("todo")
 
+options = []
 
-options = [{"label": "English", "value": "english.json"},
-           {"label": "English 2", "value": "english2.json"},
-           {"label": "Finnish", "value": "finnish.json"},
-           {"label": "Norwegian", "value": "norwegian.json"},
-           {"label": "Norwegian 2", "value": "norwegian2.json"},
-           {"label": "Polish", "value": "polish.json"},
-           {"label": "Russian", "value": "russian.json"},
-           {"label": "Spanish", "value": "spanish.json"}]
+def getOprions():
+    filesList = os.listdir("analysis")
+    for fileName in filesList:
+        # reading files and adding to options list
+        options.insert(options.__sizeof__(), {"label": fileName[:-5], "value": fileName})
 
+
+getOprions()
 app.layout = html.Div(children=[
 
     html.H1(children="Letters, bigrams and trigrams frequency analysis in different languages"),
@@ -455,15 +455,13 @@ def update_output(uploaded_filenames, uploaded_file_contents):
     if uploaded_filenames is not None and uploaded_file_contents is not None:
         for name, data in zip(uploaded_filenames, uploaded_file_contents):
             if ".txt" not in name:
-                print("Not txt file!")
-                exit()
+                return [html.Li("Not a txt file! But I'll try my best anyway...")]
             save_file(name, data)
 
     files = uploaded_files()
     if len(files) == 0:
         return [html.Li("No files yet!")]
     else:
-
         return [html.Li(file_download_link(filename)) for filename in files]
 
 # ---------------------- FILE READER FOR ANALYSIS: LETTERS ---------------------------
@@ -510,7 +508,7 @@ def update_output(uploaded_filenames, uploaded_file_contents):
 
     if uploaded_file_contents is None:
         exit()
-        
+
     analysisResult = apiAnalyzer.startAnalyzer(uploaded_file_contents)
     jsonObject = json.loads(analysisResult)
 
@@ -545,7 +543,7 @@ def update_output(uploaded_filenames, uploaded_file_contents):
 
     if uploaded_file_contents is None:
         exit()
-        
+
     analysisResult = apiAnalyzer.startAnalyzer(uploaded_file_contents)
     jsonObject = json.loads(analysisResult)
 
