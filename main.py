@@ -10,6 +10,7 @@ import json
 from urllib.parse import quote as urlquote
 import utils
 from collections import OrderedDict
+import numpy as np
 import sys
 
 # analyzer API
@@ -97,7 +98,9 @@ def file_download_link(filename):
 def processAnalysis(data):
     print("todo")
 
+
 options = []
+
 
 def getOprions():
     filesList = os.listdir("analysis")
@@ -111,20 +114,20 @@ app.layout = html.Div(children=[
 
     html.H1(children="Letters, bigrams and trigrams frequency analysis in different languages"),
     # html.Div(children="Projekt wykonany we frameworku Dash"),
-    html.Div(" "),
+    html.Div(" "),
 
     dcc.Tabs(id="maintabs", children=[
         # ------------------------------------MAIN TAB 1-----------------------------------------
         dcc.Tab(selected_style=tab_selected_style, label='Show results', children=[
             html.Div([
-                html.Div(" "),
+                html.Div(" "),
                 html.Label("Select language to analyze"),
                 dcc.Dropdown(
                     id="input-dropdown",
                     options=options,
                     value="english.json", style=list_style
                 ),
-                html.Div(" "),
+                html.Div(" "),
                 dcc.Tabs(id="tabs", children=[
                     # -------------------------------LETTERS TAB------------------------------------
                     dcc.Tab(selected_style=tab_selected_style, label='Letters', children=[
@@ -194,7 +197,7 @@ app.layout = html.Div(children=[
         ]),
         # ------------------------------------MAIN TAB 2-----------------------------------------
         dcc.Tab(selected_style=tab_selected_style, label='Add a new analysis', children=[
-            html.H2(" "),
+            html.H2(" "),
             html.H2("Here you can upload .txt files to analyse"),
             dcc.Upload(
                 id="upload-data",
@@ -464,13 +467,13 @@ def update_output(uploaded_filenames, uploaded_file_contents):
     else:
         return [html.Li(file_download_link(filename)) for filename in files]
 
+
 # ---------------------- FILE READER FOR ANALYSIS: LETTERS ---------------------------
 @app.callback(
     Output("letters-graph-tab2", "figure"),
     [Input("upload-data", "filename"), Input("upload-data", "contents")],
 )
 def update_output(uploaded_filenames, uploaded_file_contents):
-
     if uploaded_file_contents is None:
         exit()
 
@@ -499,13 +502,13 @@ def update_output(uploaded_filenames, uploaded_file_contents):
         )
     }
 
+
 # ----------------------- FILE READER FOR ANALYSIS: BIGRAMS ----------------------
 @app.callback(
     Output("bigrams-graph-tab2", "figure"),
     [Input("upload-data", "filename"), Input("upload-data", "contents")],
 )
 def update_output(uploaded_filenames, uploaded_file_contents):
-
     if uploaded_file_contents is None:
         exit()
 
@@ -534,13 +537,13 @@ def update_output(uploaded_filenames, uploaded_file_contents):
         )
     }
 
+
 # ----------------------- FILE READER FOR ANALYSIS: TRIGRAMS ----------------------
 @app.callback(
     Output("trigrams-graph-tab2", "figure"),
     [Input("upload-data", "filename"), Input("upload-data", "contents")],
 )
 def update_output(uploaded_filenames, uploaded_file_contents):
-
     if uploaded_file_contents is None:
         exit()
 
@@ -568,6 +571,49 @@ def update_output(uploaded_filenames, uploaded_file_contents):
             yaxis={'title': 'Proportions of occurrences'},  # 'range': [0, 0.2]
         )
     }
+
+
+# ----------------------- LANGUAGE DETECTION ----------------------
+def lettersFactor(uploaded_file_contents, file_contents):
+    analysisResult = apiAnalyzer.startAnalyzer(uploaded_file_contents)
+    analysisResult2 = apiAnalyzer.startAnalyzer(file_contents)
+    jsonObject = json.loads(analysisResult)
+    jsonObject2 = json.loads(analysisResult2)
+
+    lettersJson = eval(str(jsonObject["letters"]))
+    sort = OrderedDict(sorted(lettersJson.items(), key=lambda item: item[1], reverse=True))
+    freq = list(sort.values())
+
+    lettersJson2 = eval(str(jsonObject2["letters"]))
+    sort = OrderedDict(sorted(lettersJson2.items(), key=lambda item: item[1], reverse=True))
+    freq2 = list(sort.values())
+
+    factor = 0.0
+    for x in range(10):
+        # print("Jeden:"+str(freq.__getitem__(x)))
+        # print("Dwa:" +str(freq2.__getitem__(x)))
+        # print(np.square(np.subtract(freq.__getitem__(x), freq2.__getitem__(x))).mean())
+        factor += np.square(np.subtract(freq.__getitem__(x), freq2.__getitem__(x))).mean()
+    return factor
+
+
+def detectLang(filenameToAnalyse):
+    filesList = os.listdir("analysis")
+
+    result = "No match found."
+    score = 10
+    for fileName in filesList:
+        if (lettersFactor(apiAnalyzer.readAllText("analysis/" + fileName),
+                          apiAnalyzer.readAllText("analysis/" + filenameToAnalyse)) < score):
+            score = lettersFactor(apiAnalyzer.readAllText("analysis/" + fileName),
+                                  apiAnalyzer.readAllText("analysis/" + filenameToAnalyse))
+            result = "Best match: " + fileName
+    print(result)
+    return result
+
+
+#detectLang("new.json")
+#detectLang("english.json")
 
 if __name__ == "__main__":
     app.run_server(debug=True)
