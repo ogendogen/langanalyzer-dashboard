@@ -271,7 +271,7 @@ def update_figure(selectedFile):
     freq = list(sort.values())
 
     figure = []
-    figure.append(go.Scatter(
+    figure.append(go.Bar(
         x=literals,
         y=freq,
         name="Letter frequency",
@@ -301,7 +301,7 @@ def update_figure(selectedFile):
     freq = list(alphabetical.values())
 
     figure = []
-    figure.append(go.Scatter(
+    figure.append(go.Bar(
         x=literals,
         y=freq,
         name="Letter frequency",
@@ -338,7 +338,7 @@ def update_figure(selectedFile):
     literals = list(sort.keys())
     freq = list(sort.values())
     figure = []
-    figure.append(go.Scatter(
+    figure.append(go.Bar(
         x=literals,
         y=freq,
         name="Bigrams frequency",
@@ -372,7 +372,7 @@ def update_figure(selectedFile):
     literals = list(alphabetical.keys())
     freq = list(alphabetical.values())
     figure = []
-    figure.append(go.Scatter(
+    figure.append(go.Bar(
         x=literals,
         y=freq,
         name="Bigrams frequency",
@@ -402,7 +402,7 @@ def update_figure(selectedFile):
     literals = list(sort.keys())
     freq = list(sort.values())
     figure = []
-    figure.append(go.Scatter(
+    figure.append(go.Bar(
         x=literals,
         y=freq,
         name="Trigram frequency",
@@ -431,7 +431,7 @@ def update_figure(selectedFile):
     literals = list(alphabetical.keys())
     freq = list(alphabetical.values())
     figure = []
-    figure.append(go.Scatter(
+    figure.append(go.Bar(
         x=literals,
         y=freq,
         name="Trigram frequency",
@@ -486,7 +486,7 @@ def update_output(uploaded_filenames, uploaded_file_contents):
     freq = list(sort.values())
 
     figure = []
-    figure.append(go.Scatter(
+    figure.append(go.Bar(
         x=literals,
         y=freq,
         name="Letter frequency",
@@ -521,7 +521,7 @@ def update_output(uploaded_filenames, uploaded_file_contents):
     freq = list(sort.values())
 
     figure = []
-    figure.append(go.Scatter(
+    figure.append(go.Bar(
         x=literals,
         y=freq,
         name="Bigram frequency",
@@ -556,7 +556,7 @@ def update_output(uploaded_filenames, uploaded_file_contents):
     freq = list(sort.values())
 
     figure = []
-    figure.append(go.Scatter(
+    figure.append(go.Bar(
         x=literals,
         y=freq,
         name="Trigram frequency",
