@@ -610,7 +610,7 @@ def detectLang(filenameToAnalyse):
                                        utils.readAllText("analysis/" + filenameToAnalyse))
             if (similarity < score):
                 score = similarity
-                result = "Best match: " + fileName
+                result = "Best match: " + utils.mapFileToLanguage(fileName)
                 # print("Aktualny rezultat: " + result)
 
     #print(result)
