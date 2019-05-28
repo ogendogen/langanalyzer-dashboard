@@ -1,5 +1,5 @@
 import base64
-from flask import Flask, send_from_directory
+from flask import Flask
 import os
 import dash
 import dash_core_components as dcc
@@ -7,11 +7,9 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 import plotly.graph_objs as go
 import json
-from urllib.parse import quote as urlquote
 import utils
 from collections import OrderedDict
 import numpy as np
-import sys
 
 # analyzer API
 import apiAnalyzer
@@ -21,7 +19,6 @@ import apiAnalyzer
 
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
-# app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = Flask(__name__)
 app = dash.Dash(server=server, external_stylesheets=external_stylesheets)
 
@@ -72,13 +69,7 @@ def save_file(name, content):
     # List of options is not dynamic, requires page refresh
     options.insert(options.__sizeof__(), {"label": name[:-4], "value": name[:-3] + "json"})
 
-
-def processAnalysis(data):
-    print("todo")
-
-
 options = []
-
 
 def getOprions():
     filesList = os.listdir("analysis")
@@ -195,7 +186,7 @@ app.layout = html.Div(children=[
                 },
                 multiple=True,
             ),
-            html.H2("Operations List"),
+            html.H2("Result:"),
             html.Ul(id="file-list"),
             html.Div([
                 dcc.Graph(
@@ -231,7 +222,6 @@ app.layout = html.Div(children=[
     ], style=tabs_styles),
 
 ])
-
 
 # --------------------------LETTERS--------------------------
 # --------------------------sorted---------------------------
@@ -312,7 +302,6 @@ def update_figure(selectedFile):
         bigramsJson = eval(str(jsonObject["digrams"]))
 
     sort = OrderedDict(sorted(bigramsJson.items(), key=lambda item: item[1], reverse=True))
-    alphabetical = OrderedDict(sorted(bigramsJson.items(), key=lambda item: item[0]))
     literals = list(sort.keys())
     freq = list(sort.values())
     figure = []
@@ -439,8 +428,6 @@ def update_output(uploaded_filenames, uploaded_file_contents):
             save_file(name, data)
 
     files = []
-    if (str(uploaded_filenames) != "None"):
-        files.append("Analysis in progress...")
     try:
         files.append(detectLang(str(uploaded_filenames)[2:-5] + "json"))
     except FileNotFoundError:
@@ -559,14 +546,8 @@ def update_output(uploaded_filenames, uploaded_file_contents):
 
 # ----------------------- LANGUAGE DETECTION ----------------------
 def lettersFactor(uploaded_file_contents, file_contents):
-    # analysisResult = apiAnalyzer.startAnalyzer(uploaded_file_contents)
-    # analysisResult2 = apiAnalyzer.startAnalyzer(file_contents)
     jsonObject = json.loads(uploaded_file_contents)
     jsonObject2 = json.loads(file_contents)
-
-    # już na poziomie JSONa coś dziwnego dzieje się z wartościami
-    # print("json: "+str(jsonObject))
-    # print("json2: " + str(jsonObject2))
 
     lettersJson = eval(str(jsonObject["letters"]))
     sort = OrderedDict(sorted(lettersJson.items(), key=lambda item: item[1], reverse=True))
@@ -578,11 +559,6 @@ def lettersFactor(uploaded_file_contents, file_contents):
     freq2 = list(sort.values())
     literals2 = list(sort.keys())
 
-    # print("Litery: " + str(literals))
-    # print("Wyst: " + str(freq))
-    # print("Litery2: " + str(literals2))
-    # print("Wyst2: " + str(freq2))
-
     factor = 0.0
     for x in range(20):
         # print("Wzór:" + str(freq.__getitem__(x)))
@@ -593,20 +569,20 @@ def lettersFactor(uploaded_file_contents, file_contents):
             factor -= 0.05
         # print("Odległość:" + str(np.square(np.subtract(freq.__getitem__(x), freq2.__getitem__(x))).mean()))
         factor += np.square(np.subtract(freq.__getitem__(x), freq2.__getitem__(x))).mean()
-    print("Factor:" + str(factor))
+    #print("Factor:" + str(factor))
     return factor
 
 
 def detectLang(filenameToAnalyse):
     filesList = os.listdir("analysis")
-    print("ANALIZA: " + filenameToAnalyse)
+    #print("ANALIZA: " + filenameToAnalyse)
     result = "No match found."
     score = 10
     for fileName in filesList:
         #print("fileName:" + fileName)
         #print("filenameToAnalyse:" + filenameToAnalyse)
         if (fileName != filenameToAnalyse):
-            print("PLIK:" + fileName)
+            #print("PLIK:" + fileName)
             # similarity -> smaller=better
             similarity = lettersFactor(utils.readAllText("analysis/" + fileName),
                                        utils.readAllText("analysis/" + filenameToAnalyse))
