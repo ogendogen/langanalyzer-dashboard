@@ -14,40 +14,28 @@ import numpy as np
 # analyzer API
 import apiAnalyzer
 
-# sample call:
-# print(apiAnalyzer.startAnalyzer("anksdajksdjknsadnjksandiuoqwjeiuojzskd"))
-
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
 server = Flask(__name__)
 app = dash.Dash(server=server, external_stylesheets=external_stylesheets)
 
 tabs_styles = {
-    # 'height': '244px'
     'fontWeight': 'bold',
     'fontSize': '1.8em',
 }
 
 tabs_styles2 = {
-    # 'height': '244px'
     'fontWeight': 'bold',
     'fontSize': '1.2em',
 }
 
 tab_selected_style = {
-    # 'borderTop': '1px solid #d6d6d6',
-    # 'borderBottom': '1px solid #d6d6d6',
     'backgroundColor': '#72c5ff',
-    # 'color': 'white',
-    # 'padding': '6px'
 }
 
 list_style = {
-    # 'borderTop': '2px solid #d6d6d6',
-    # 'borderBottom': '2px solid #d6d6d6',
-    # 'backgroundColor': '#72c5ff',
-    # 'color': 'white',
-    # 'padding': '6px',
+    'marginTop': '-2px',
+    'marginBottom': '40px',
     'fontWeight': 'bold',
     'fontSize': '1.2em'
 }
@@ -67,29 +55,30 @@ def save_file(name, content):
                              apiAnalyzer.startAnalyzer(apiAnalyzer.readAllText(os.path.join(UPLOAD_DIRECTORY, name))))
 
     # List of options is not dynamic, requires page refresh
-    options.insert(options.__sizeof__(), {"label": name[:-4], "value": name[:-3] + "json"})
+    options.append({"label": name[:-4], "value": name[:-3] + "json"})
+
 
 options = []
+
 
 def getOprions():
     filesList = os.listdir("analysis")
     for fileName in filesList:
         # reading files and adding to options list
-        options.insert(options.__sizeof__(), {"label": fileName[:-5], "value": fileName})
+        options.append({"label": fileName[:-5], "value": fileName})
 
 
 getOprions()
 app.layout = html.Div(children=[
 
     html.H1(children="Letters, bigrams and trigrams frequency analysis in different languages"),
-    # html.Div(children="Projekt wykonany we frameworku Dash"),
-    html.Div(" "),
+    html.Div(" "),
 
     dcc.Tabs(id="maintabs", children=[
         # ------------------------------------MAIN TAB 1-----------------------------------------
         dcc.Tab(selected_style=tab_selected_style, label='Show results', children=[
             html.Div([
-                html.Div(" "),
+                html.Div(" "),
                 html.Label("Select language to analyze"),
                 dcc.Dropdown(
                     id="input-dropdown",
@@ -166,7 +155,7 @@ app.layout = html.Div(children=[
         ]),
         # ------------------------------------MAIN TAB 2-----------------------------------------
         dcc.Tab(selected_style=tab_selected_style, label='Add a new analysis', children=[
-            html.H2(" "),
+            html.H2(" "),
             html.H2("Here you can upload .txt files to analyse"),
             dcc.Upload(
                 id="upload-data",
@@ -186,6 +175,7 @@ app.layout = html.Div(children=[
                 },
                 multiple=True,
             ),
+            html.H2(" "),
             html.H2("Result:"),
             html.Ul(id="file-list"),
             html.Div([
@@ -222,6 +212,7 @@ app.layout = html.Div(children=[
     ], style=tabs_styles),
 
 ])
+
 
 # --------------------------LETTERS--------------------------
 # --------------------------sorted---------------------------
@@ -284,7 +275,6 @@ def update_figure(selectedFile):
         )
     }
 
-
 # --------------------------BIGRAMS--------------------------
 # --------------------------sorted--------------------------
 @app.callback(
@@ -319,7 +309,6 @@ def update_figure(selectedFile):
         )
     }
 
-
 # --------------------------alphabetical--------------------------
 @app.callback(
     Output("bigrams-graph2", "figure"),
@@ -352,7 +341,6 @@ def update_figure(selectedFile):
             yaxis={'title': 'Proportions of occurrences'},  # 'range': [0, 0.2]
         )
     }
-
 
 # --------------------------TRIGRAMS--------------------------
 # --------------------------sorted--------------------------
@@ -419,8 +407,7 @@ def update_figure(selectedFile):
     [Input("upload-data", "filename"), Input("upload-data", "contents")],
 )
 def update_output(uploaded_filenames, uploaded_file_contents):
-    """Save uploaded files and regenerate the file list."""
-
+    # save uploaded files and regenerate the file list
     if uploaded_filenames is not None and uploaded_file_contents is not None:
         for name, data in zip(uploaded_filenames, uploaded_file_contents):
             if ".txt" not in name:
@@ -432,7 +419,6 @@ def update_output(uploaded_filenames, uploaded_file_contents):
         files.append(detectLang(str(uploaded_filenames)[2:-5] + "json"))
     except FileNotFoundError:
         print("Nothing was analysed yet.")
-    # print(str(uploaded_filenames)[2:-5]+"json")
     if len(files) == 0:
         return [html.Li("Nothing was analysed yet.")]
     else:
@@ -448,6 +434,7 @@ def update_output(uploaded_filenames, uploaded_file_contents):
     if uploaded_file_contents is None:
         exit()
 
+    # fileContent = utils.readAllText("analysis/" + str(uploaded_filenames[0])[:-3] + "json")
     analysisResult = apiAnalyzer.startAnalyzer(uploaded_file_contents)
     jsonObject = json.loads(analysisResult)
 
@@ -569,20 +556,20 @@ def lettersFactor(uploaded_file_contents, file_contents):
             factor -= 0.05
         # print("Odległość:" + str(np.square(np.subtract(freq.__getitem__(x), freq2.__getitem__(x))).mean()))
         factor += np.square(np.subtract(freq.__getitem__(x), freq2.__getitem__(x))).mean()
-    #print("Factor:" + str(factor))
+    # print("Factor:" + str(factor))
     return factor
 
 
 def detectLang(filenameToAnalyse):
     filesList = os.listdir("analysis")
-    #print("ANALIZA: " + filenameToAnalyse)
+    # print("ANALIZA: " + filenameToAnalyse)
     result = "No match found."
     score = 10
     for fileName in filesList:
-        #print("fileName:" + fileName)
-        #print("filenameToAnalyse:" + filenameToAnalyse)
+        # print("fileName:" + fileName)
+        # print("filenameToAnalyse:" + filenameToAnalyse)
         if (fileName != filenameToAnalyse):
-            #print("PLIK:" + fileName)
+            # print("PLIK:" + fileName)
             # similarity -> smaller=better
             similarity = lettersFactor(utils.readAllText("analysis/" + fileName),
                                        utils.readAllText("analysis/" + filenameToAnalyse))
@@ -591,7 +578,7 @@ def detectLang(filenameToAnalyse):
                 result = "Best match: " + utils.mapFileToLanguage(fileName)
                 # print("Aktualny rezultat: " + result)
 
-    #print(result)
+    # print(result)
     return result
 
 
