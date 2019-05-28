@@ -294,7 +294,6 @@ def update_figure(selectedFile):
 def update_figure(selectedFile):
     fileContent = utils.readAllText("analysis/" + selectedFile)
     jsonObject = json.loads(fileContent)
-
     lettersJson = eval(str(jsonObject["letters"]))
     alphabetical = OrderedDict(sorted(lettersJson.items(), key=lambda item: item[0]))
 
@@ -575,22 +574,24 @@ def update_output(uploaded_filenames, uploaded_file_contents):
 
 # ----------------------- LANGUAGE DETECTION ----------------------
 def lettersFactor(uploaded_file_contents, file_contents):
-    analysisResult = apiAnalyzer.startAnalyzer(uploaded_file_contents)
-    analysisResult2 = apiAnalyzer.startAnalyzer(file_contents)
-    jsonObject = json.loads(analysisResult)
-    jsonObject2 = json.loads(analysisResult2)
+    #analysisResult = apiAnalyzer.startAnalyzer(uploaded_file_contents)
+    #analysisResult2 = apiAnalyzer.startAnalyzer(file_contents)
+    jsonObject = json.loads(uploaded_file_contents)
+    jsonObject2 = json.loads(file_contents)
+
+
 
     # już na poziomie JSONa coś dziwnego dzieje się z wartościami
     #print("json: "+str(jsonObject))
     #print("json2: " + str(jsonObject2))
 
     lettersJson = eval(str(jsonObject["letters"]))
-    sort = OrderedDict(sorted(lettersJson.items(), key=lambda item: item[0], reverse=False))
+    sort = OrderedDict(sorted(lettersJson.items(), key=lambda item: item[1], reverse=True))
     freq = list(sort.values())
     literals = list(sort.keys())
 
     lettersJson2 = eval(str(jsonObject2["letters"]))
-    sort = OrderedDict(sorted(lettersJson2.items(), key=lambda item: item[0], reverse=False))
+    sort = OrderedDict(sorted(lettersJson2.items(), key=lambda item: item[1], reverse=True))
     freq2 = list(sort.values())
     literals2 = list(sort.keys())
 
@@ -600,13 +601,13 @@ def lettersFactor(uploaded_file_contents, file_contents):
     #print("Wyst2: " + str(freq2))
 
     factor = 0.0
-    for x in range(10):
+    for x in range(20):
         #print("Wzór:" + str(freq.__getitem__(x)))
         #print("Analiza:" + str(freq2.__getitem__(x)))
         #print("Znaki:" + str(literals.__getitem__(x)) + " " + str(literals2.__getitem__(x)))
         if literals.__getitem__(x) == literals2.__getitem__(x):
             #print("Te same znaki:" + str(literals.__getitem__(x)) + " " + str(literals2.__getitem__(x)))
-            factor -= 0.1
+            factor -= 0.05
         #print("Odległość:" + str(np.square(np.subtract(freq.__getitem__(x), freq2.__getitem__(x))).mean()))
         factor += np.square(np.subtract(freq.__getitem__(x), freq2.__getitem__(x))).mean()
     print("Factor:" + str(factor))
@@ -621,21 +622,23 @@ def detectLang(filenameToAnalyse):
     for fileName in filesList:
         print("PLIK:" + fileName)
         # similarity -> smaller=better
-        similarity = lettersFactor(apiAnalyzer.readAllText("analysis/" + fileName),
-                                   apiAnalyzer.readAllText("new analysis/" + filenameToAnalyse))
+        similarity = lettersFactor(utils.readAllText("analysis/" + fileName),
+                                   utils.readAllText("new analysis/" + filenameToAnalyse))
         if (similarity < score):
             score = similarity
             result = "Best match: " + fileName
-            print("Aktualny rezultat: " + result)
+            #print("Aktualny rezultat: " + result)
     print(result)
     return result
 
-print("ANALIZA 1 -----------------------------------")
-detectLang("new-eng.json")
-print("ANALIZA 2 -----------------------------------")
-detectLang("new-rus.json")
-print("ANALIZA 3 -----------------------------------")
-detectLang("new-spa.json")
+print("ANALIZA 1 ----------------------------------- ANGIELSKI")
+detectLang("new-eng(1099).json")
+print("ANALIZA 2 ----------------------------------- ROSYJSKI")
+detectLang("new-rus(3549).json")
+print("ANALIZA 3 ----------------------------------- HISZPAŃSKI")
+detectLang("new-spa(7166).json")
+print("ANALIZA 4 ----------------------------------- NORWESKI")
+detectLang("new-nor(1546).json")
 
 if __name__ == "__main__":
     app.run_server(debug=True)
