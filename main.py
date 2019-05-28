@@ -79,16 +79,6 @@ def download(path):
     return send_from_directory(UPLOAD_DIRECTORY, path, as_attachment=True)
 
 
-def uploaded_files():
-    """List the files in the upload directory."""
-    files = []
-    for filename in os.listdir(UPLOAD_DIRECTORY):
-        path = os.path.join(UPLOAD_DIRECTORY, filename)
-        if os.path.isfile(path):
-            files.append(filename)
-    return files
-
-
 def file_download_link(filename):
     """Create a Plotly Dash 'A' element that downloads a file from the app."""
     location = "/download/{}".format(urlquote(filename))
@@ -217,7 +207,7 @@ app.layout = html.Div(children=[
                 },
                 multiple=True,
             ),
-            html.H2("File List"),
+            html.H2("Operations List"),
             html.Ul(id="file-list"),
             html.Div([
                 dcc.Graph(
@@ -460,9 +450,16 @@ def update_output(uploaded_filenames, uploaded_file_contents):
                 return [html.Li("Not a txt file! But I'll try my best anyway...")]
             save_file(name, data)
 
-    files = uploaded_files()
+    files = []
+    if (str(uploaded_filenames) != "None"):
+        files.append("Analysis in progress...")
+    try:
+        files.append(detectLang(str(uploaded_filenames)[2:-5] + "json"))
+    except FileNotFoundError:
+        print("Nothing was analysed yet.")
+    # print(str(uploaded_filenames)[2:-5]+"json")
     if len(files) == 0:
-        return [html.Li("No files yet!")]
+        return [html.Li("Nothing was analysed yet.")]
     else:
         return [html.Li(file_download_link(filename)) for filename in files]
 
@@ -574,16 +571,14 @@ def update_output(uploaded_filenames, uploaded_file_contents):
 
 # ----------------------- LANGUAGE DETECTION ----------------------
 def lettersFactor(uploaded_file_contents, file_contents):
-    #analysisResult = apiAnalyzer.startAnalyzer(uploaded_file_contents)
-    #analysisResult2 = apiAnalyzer.startAnalyzer(file_contents)
+    # analysisResult = apiAnalyzer.startAnalyzer(uploaded_file_contents)
+    # analysisResult2 = apiAnalyzer.startAnalyzer(file_contents)
     jsonObject = json.loads(uploaded_file_contents)
     jsonObject2 = json.loads(file_contents)
 
-
-
     # już na poziomie JSONa coś dziwnego dzieje się z wartościami
-    #print("json: "+str(jsonObject))
-    #print("json2: " + str(jsonObject2))
+    # print("json: "+str(jsonObject))
+    # print("json2: " + str(jsonObject2))
 
     lettersJson = eval(str(jsonObject["letters"]))
     sort = OrderedDict(sorted(lettersJson.items(), key=lambda item: item[1], reverse=True))
@@ -595,20 +590,20 @@ def lettersFactor(uploaded_file_contents, file_contents):
     freq2 = list(sort.values())
     literals2 = list(sort.keys())
 
-    #print("Litery: " + str(literals))
-    #print("Wyst: " + str(freq))
-    #print("Litery2: " + str(literals2))
-    #print("Wyst2: " + str(freq2))
+    # print("Litery: " + str(literals))
+    # print("Wyst: " + str(freq))
+    # print("Litery2: " + str(literals2))
+    # print("Wyst2: " + str(freq2))
 
     factor = 0.0
     for x in range(20):
-        #print("Wzór:" + str(freq.__getitem__(x)))
-        #print("Analiza:" + str(freq2.__getitem__(x)))
-        #print("Znaki:" + str(literals.__getitem__(x)) + " " + str(literals2.__getitem__(x)))
+        # print("Wzór:" + str(freq.__getitem__(x)))
+        # print("Analiza:" + str(freq2.__getitem__(x)))
+        # print("Znaki:" + str(literals.__getitem__(x)) + " " + str(literals2.__getitem__(x)))
         if literals.__getitem__(x) == literals2.__getitem__(x):
-            #print("Te same znaki:" + str(literals.__getitem__(x)) + " " + str(literals2.__getitem__(x)))
+            # print("Te same znaki:" + str(literals.__getitem__(x)) + " " + str(literals2.__getitem__(x)))
             factor -= 0.05
-        #print("Odległość:" + str(np.square(np.subtract(freq.__getitem__(x), freq2.__getitem__(x))).mean()))
+        # print("Odległość:" + str(np.square(np.subtract(freq.__getitem__(x), freq2.__getitem__(x))).mean()))
         factor += np.square(np.subtract(freq.__getitem__(x), freq2.__getitem__(x))).mean()
     print("Factor:" + str(factor))
     return factor
@@ -616,29 +611,25 @@ def lettersFactor(uploaded_file_contents, file_contents):
 
 def detectLang(filenameToAnalyse):
     filesList = os.listdir("analysis")
-    print("ANALIZA: "+filenameToAnalyse)
+    print("ANALIZA: " + filenameToAnalyse)
     result = "No match found."
     score = 10
     for fileName in filesList:
-        print("PLIK:" + fileName)
-        # similarity -> smaller=better
-        similarity = lettersFactor(utils.readAllText("analysis/" + fileName),
-                                   utils.readAllText("new analysis/" + filenameToAnalyse))
-        if (similarity < score):
-            score = similarity
-            result = "Best match: " + fileName
-            #print("Aktualny rezultat: " + result)
-    print(result)
+        #print("fileName:" + fileName)
+        #print("filenameToAnalyse:" + filenameToAnalyse)
+        if (fileName != filenameToAnalyse):
+            print("PLIK:" + fileName)
+            # similarity -> smaller=better
+            similarity = lettersFactor(utils.readAllText("analysis/" + fileName),
+                                       utils.readAllText("analysis/" + filenameToAnalyse))
+            if (similarity < score):
+                score = similarity
+                result = "Best match: " + fileName
+                # print("Aktualny rezultat: " + result)
+
+    #print(result)
     return result
 
-print("ANALIZA 1 ----------------------------------- ANGIELSKI")
-detectLang("new-eng(1099).json")
-print("ANALIZA 2 ----------------------------------- ROSYJSKI")
-detectLang("new-rus(3549).json")
-print("ANALIZA 3 ----------------------------------- HISZPAŃSKI")
-detectLang("new-spa(7166).json")
-print("ANALIZA 4 ----------------------------------- NORWESKI")
-detectLang("new-nor(1546).json")
 
 if __name__ == "__main__":
     app.run_server(debug=True)
