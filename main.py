@@ -73,18 +73,6 @@ def save_file(name, content):
     options.insert(options.__sizeof__(), {"label": name[:-4], "value": name[:-3] + "json"})
 
 
-@server.route("/download/<path:path>")
-def download(path):
-    """Serve a file from the upload directory."""
-    return send_from_directory(UPLOAD_DIRECTORY, path, as_attachment=True)
-
-
-def file_download_link(filename):
-    """Create a Plotly Dash 'A' element that downloads a file from the app."""
-    location = "/download/{}".format(urlquote(filename))
-    return html.A(filename, href=location)
-
-
 def processAnalysis(data):
     print("todo")
 
@@ -461,7 +449,7 @@ def update_output(uploaded_filenames, uploaded_file_contents):
     if len(files) == 0:
         return [html.Li("Nothing was analysed yet.")]
     else:
-        return [html.Li(file_download_link(filename)) for filename in files]
+        return [html.Li((filename)) for filename in files]
 
 
 # ---------------------- FILE READER FOR ANALYSIS: LETTERS ---------------------------
