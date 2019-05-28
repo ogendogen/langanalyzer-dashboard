@@ -439,8 +439,6 @@ def update_output(uploaded_filenames, uploaded_file_contents):
             save_file(name, data)
 
     files = []
-    if (str(uploaded_filenames) != "None"):
-        files.append("Analysis in progress...")
     try:
         files.append(detectLang(str(uploaded_filenames)[2:-5] + "json"))
     except FileNotFoundError:
