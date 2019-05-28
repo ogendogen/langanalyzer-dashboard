@@ -52,7 +52,7 @@ def save_file(name, content):
         fp.write(base64.decodebytes(data))
 
     apiAnalyzer.writeAllText("analysis/" + name[:-3] + "json",
-                             apiAnalyzer.startAnalyzer(apiAnalyzer.readAllText(os.path.join(UPLOAD_DIRECTORY, name))))
+    apiAnalyzer.startAnalyzer(apiAnalyzer.readAllText(os.path.join(UPLOAD_DIRECTORY, name))))
 
     # List of options is not dynamic, requires page refresh
     options.append({"label": name[:-4], "value": name[:-3] + "json"})
@@ -437,8 +437,7 @@ def update_output(uploaded_filenames, uploaded_file_contents):
     if uploaded_file_contents is None:
         exit()
 
-    # fileContent = utils.readAllText("analysis/" + str(uploaded_filenames[0])[:-3] + "json")
-    analysisResult = apiAnalyzer.startAnalyzer(uploaded_file_contents)
+    analysisResult = apiAnalyzer.startAnalyzer(uploaded_file_contents[0])
     jsonObject = json.loads(analysisResult)
 
     lettersJson = eval(str(jsonObject["letters"]))
@@ -473,7 +472,7 @@ def update_output(uploaded_filenames, uploaded_file_contents):
     if uploaded_file_contents is None:
         exit()
 
-    analysisResult = apiAnalyzer.startAnalyzer(uploaded_file_contents)
+    analysisResult = apiAnalyzer.startAnalyzer(uploaded_file_contents[0])
     jsonObject = json.loads(analysisResult)
 
     lettersJson = eval(str(jsonObject["bigrams"]))
@@ -508,7 +507,7 @@ def update_output(uploaded_filenames, uploaded_file_contents):
     if uploaded_file_contents is None:
         exit()
 
-    analysisResult = apiAnalyzer.startAnalyzer(uploaded_file_contents)
+    analysisResult = apiAnalyzer.startAnalyzer(uploaded_file_contents[0])
     jsonObject = json.loads(analysisResult)
 
     lettersJson = eval(str(jsonObject["trigrams"]))
