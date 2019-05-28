@@ -275,6 +275,7 @@ def update_figure(selectedFile):
         )
     }
 
+
 # --------------------------BIGRAMS--------------------------
 # --------------------------sorted--------------------------
 @app.callback(
@@ -309,6 +310,7 @@ def update_figure(selectedFile):
         )
     }
 
+
 # --------------------------alphabetical--------------------------
 @app.callback(
     Output("bigrams-graph2", "figure"),
@@ -341,6 +343,7 @@ def update_figure(selectedFile):
             yaxis={'title': 'Proportions of occurrences'},  # 'range': [0, 0.2]
         )
     }
+
 
 # --------------------------TRIGRAMS--------------------------
 # --------------------------sorted--------------------------
@@ -547,7 +550,13 @@ def lettersFactor(uploaded_file_contents, file_contents):
     literals2 = list(sort.keys())
 
     factor = 0.0
-    for x in range(20):
+    x = 20
+    if (len(freq) < 20 or len(freq2) < 20):
+        if (len(freq) > len(freq2)):
+            x = len(freq2)
+        else:
+            x = len(freq)
+    for x in range(x):
         # print("Wzór:" + str(freq.__getitem__(x)))
         # print("Analiza:" + str(freq2.__getitem__(x)))
         # print("Znaki:" + str(literals.__getitem__(x)) + " " + str(literals2.__getitem__(x)))
